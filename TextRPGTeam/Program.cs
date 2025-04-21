@@ -59,6 +59,21 @@
         }
         // 플레이어
 
+        struct Monster()
+        {
+            public int Level;
+            public string Name;
+            public int Hp;
+            public int Att;
+            public Monster(int l,string n, int h, int a):this()
+            {
+                Level = l;
+                Name = n;
+                Hp = h;
+                Att = a;
+            }
+        }
+
         static class Constants
         {
             public const float sale = 0.85f; // 아이템 판매시 배율
@@ -165,6 +180,7 @@
                         case 4:
                             {
                                 Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
+                                Battle();
                                 break;
                             }
                         case 5:
@@ -521,6 +537,11 @@
                 }
             }
             //휴식
+
+            public static void Battle()
+            {
+
+            }
         }
     }
 }
