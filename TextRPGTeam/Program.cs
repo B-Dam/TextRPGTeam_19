@@ -107,6 +107,12 @@
                 new Item("암흑강타", "악의 태세가 극에 달하여 강렬한 일격을 날린다.", 25, 5, 1500,"weapon")
                 };
 
+                List<Monster> mob = new List<Monster> {
+                    new Monster(2,"미니언",15,5),
+                    new Monster(3,"공허충",10,9),
+                    new Monster(5,"대포미니언",25,8)
+                };
+
                 int choice;
                 int count = 0;
 
@@ -180,7 +186,7 @@
                         case 4:
                             {
                                 Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                                Battle();
+                                Battle(mob,hero);
                                 break;
                             }
                         case 5:
@@ -538,10 +544,42 @@
             }
             //휴식
 
-            public static void Battle()
+            public static void Battle(List<Monster> mob, Character hero)
             {
+                Random random = new Random();
+                int mobCount = random.Next(1, 4);//몬스터 생성 마릿수
 
+                List<Monster> enemy = new List<Monster> { };//전투시의 적 리스트
+
+                for (int i = 0; i < mobCount; i++)
+                {
+                    enemy.Add(mob[random.Next(0,mob.Count)]);//mob리스트 안의 몬스터를 랜덤으로 enemy에 추가
+                }
+                
+                int choice;
+
+                Console.Clear();
+
+                while (true)
+                {
+                    Console.WriteLine("\nBattle!!\n\n");
+                    foreach (Monster enm in enemy) 
+                    {
+                        Console.WriteLine($"Lv.{enm.Level} {enm.Name}\tHP "+(enm.Hp>0?enm.Hp:"dead"));
+                    }
+                    Console.Write($"\n[내정보]\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\nHP {hero.Health}/100\n");
+                    Console.Write("\n1. 공격\n\n원하시는 행동을 입력해주세요.\n>>");
+                    try { choice = int.Parse(Console.ReadLine()); }
+                    catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
+                    switch (choice)
+                    {
+                        case 1: BattleAttack(); break;
+                        default: Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break;
+                    }
+                    if (choice == 2) { Console.Clear(); break; }
+                }
             }
+            public static void BattleAttack() { }
         }
     }
 }
