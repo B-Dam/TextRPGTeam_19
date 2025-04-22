@@ -1,5 +1,6 @@
 ﻿namespace TextRPGTeam
 {
+    using System;
     using System.Threading.Tasks.Dataflow;
 
     namespace TextRPGTeam
@@ -62,6 +63,21 @@
         }
         // 플레이어
 
+        struct Monster()
+        {
+            public int Level;
+            public string Name;
+            public int Hp;
+            public int Att;
+            public Monster(int l,string n, int h, int a):this()
+            {
+                Level = l;
+                Name = n;
+                Hp = h;
+                Att = a;
+            }
+        }
+
         static class Constants
         {
             public const float sale = 0.85f; // 아이템 판매시 배율
@@ -94,6 +110,12 @@
                 {
                 new Item("수류연타", "물의 태세가 극에 달하여 물 흐르듯 3회의 연격을 날린다.", 5, 20, 1500,"weapon"),
                 new Item("암흑강타", "악의 태세가 극에 달하여 강렬한 일격을 날린다.", 25, 5, 1500,"weapon")
+                };
+
+                List<Monster> mob = new List<Monster> {
+                    new Monster(2,"미니언",15,5),
+                    new Monster(3,"공허충",10,9),
+                    new Monster(5,"대포미니언",25,8)
                 };
 
                 int choice;
@@ -170,6 +192,7 @@
                         case 4:
                             {
                                 Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
+                                Battle(mob,hero);
                                 break;
                             }
                         case 5:
@@ -528,6 +551,172 @@
                 }
             }
             //휴식
+
+            public static void Battle(List<Monster> mob, Character hero)//배틀 메소드
+            {
+                bool allDead;
+                Random random = new Random();
+                int mobCount = random.Next(1, 4);//몬스터 생성 마릿수
+                int[] enemyHealth = new int[mobCount];//몬스터 체력 저장 변수, class는 같은 종류의 몬스터들의 체력을 하나로 보아 필요
+                int i;
+                List<Monster> enemy = new List<Monster> { };//전투시의 적 리스트
+
+                for (i = 0; i < mobCount; i++)
+                {
+                    enemy.Add(mob[random.Next(0,mob.Count)]);//mob리스트 안의 몬스터를 랜덤으로 enemy에 추가
+                    enemyHealth[i] = enemy[i].Hp;
+                }
+                int choice;
+
+
+                while (true)
+                {
+                    Console.Clear();
+                    if (hero.Health <= 0)
+                    {
+                        Console.WriteLine("\n현재 체력이 없습니다. 마을로 돌아갑니다...\n");
+                        break;
+                    }
+                    allDead = true;
+                    Console.WriteLine("\nBattle!!\n\n");
+                    i = 0;
+                    foreach (Monster enm in enemy)
+                    {
+                        if (enemyHealth[i] > 0)
+                        {
+                            Console.WriteLine($"  Lv.{enm.Level}  {PadRightForConsole(enm.Name, 15)}HP {enemyHealth[i]}");
+                            allDead = false;
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            Console.WriteLine($"  Lv.{enm.Level}  {PadRightForConsole(enm.Name, 15)}Dead");
+                            Console.ResetColor();
+                        }
+                        i++;
+                    }
+                    if (allDead) { Console.Clear(); BattleVictory(enemy,hero); Console.Clear(); break;}
+                    Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/100\n\n");
+                    Console.Write("\n1. 공격\n\n원하시는 행동을 입력해주세요.\n>>");
+                    try { choice = int.Parse(Console.ReadLine()); }
+                    catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
+                    switch (choice)
+                    {
+                        case 1: BattleAttack(enemy,hero,enemyHealth); break;
+                        default: Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break;
+                    }
+                }
+            }
+            public static void BattleAttack(List<Monster> enemy, Character hero, int[] enemyHealth) //플레이어 공격시 메소드
+            {
+                Random random = new Random();
+                int choice;
+                int count;
+                Monster foe;
+                int damage;
+                while (true)
+                {
+                    Console.Clear();
+                    count = 0;
+                    Console.WriteLine("\nBattle!!\n\n");
+                    foreach (Monster enm in enemy)
+                    {
+                        count++;
+                        if (enemyHealth[count-1] > 0)
+                            Console.WriteLine($"{count} Lv.{enm.Level}  {PadRightForConsole(enm.Name, 15)}HP {enemyHealth[count-1]}");
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            Console.WriteLine($"  Lv.{enm.Level}  {PadRightForConsole(enm.Name, 15)}Dead");
+                            Console.ResetColor();
+                        }
+                    }
+                    Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/100\n\n");
+                    Console.Write("\n0. 취소\n\n대상을 선택해주세요.\n>>");
+                    try { choice = int.Parse(Console.ReadLine()); }
+                    catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
+                    if (choice > 0 && choice <= count && enemy[choice-1].Hp>0) 
+                    {
+                        Console.Clear();
+                        foe=enemy[choice-1];
+                        damage = (int)(hero.Att+hero.EqAtt)+random.Next(-1,2);//공격력과 장비공격력을 더하고 오차 +-1의 데미지
+                        enemyHealth[choice-1]-=damage;
+                        Console.Write($"\nBattle!!\n\n\n{hero.Name}의 공격!\n\n");
+                        Console.Write($"Lv.{foe.Level} {foe.Name} 을(를) 맞췄습니다.");
+                        Console.Write($"[데미지 : {damage}]\n\n\n");
+                        Console.Write($"Lv.{foe.Level} {foe.Name}\n\n");
+                        if(enemyHealth[choice - 1] > 0)
+                            Console.Write($"HP {enemyHealth[choice - 1] + damage} -> {enemyHealth[choice - 1]}");
+                        else
+                            Console.Write($"HP {enemyHealth[choice - 1] + damage} -> Dead");
+                        Console.Write("\n\n\n아무버튼이나 누르세요..");
+                        Console.ReadLine();
+                        EnemyAttack(enemy,hero,enemyHealth);
+                        break; 
+                    }
+                    else { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break; }
+                }
+            }
+            public static void EnemyAttack(List<Monster> enemy, Character hero,int[] enemyHealth)//적군 공격시 메소드
+            {
+                Random random = new Random();
+                int damage;
+                int i = -1;
+                foreach (Monster enm in enemy)
+                {
+                    i++;
+                    if (enemyHealth[i] <= 0) continue;
+                    Console.Clear();
+                    damage = enm.Att+random.Next(-1,2);
+                    hero.Health -= damage;
+                    Console.Write("\nBattle!!\n\n\n");
+                    Console.Write($"Lv.{enm.Level} {enm.Name} 의 공격!\n\n");
+                    Console.Write($"{hero.Name} 을(를) 맞췄습니다. [데미지 : {damage}]\n\n\n");
+                    Console.Write($"Lv.{hero.Level} {hero.Name}\n\n");
+                    if(hero.Health> 0)
+                        Console.Write($"HP {hero.Health + damage} -> {hero.Health}\n\n\n");
+                    else
+                        Console.Write($"HP {hero.Health + damage} -> Dead\n\n\n");
+                    Console.Write("아무버튼이나 누르세요..");
+                    Console.ReadLine();
+                    if(hero.Health <= 0)
+                    {
+                        BattleDefeat(enemy,hero);
+                        break;
+                    }
+                }
+            }
+            public static void BattleVictory(List<Monster> enemy, Character hero) //배틀 승리시 메소드
+            {
+                Console.Clear();
+                Console.WriteLine("\nBattle - Result\n\n");
+                Console.WriteLine("Victory\n\n");
+                Console.WriteLine($"던전에서 몬스터 {enemy.Count}마리를 잡았습니다.\n\n");
+                Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
+                Console.WriteLine($"HP {hero.Health}/100\n\n");
+                Console.Write("아무버튼이나 누르세요..");
+                Console.ReadLine();
+            }
+            public static void BattleDefeat(List<Monster> enemy, Character hero) //배틀 패배시 메소드
+            {
+                hero.Health = 0;
+                Console.Clear();
+                Console.WriteLine("\nBattle - Result\n\n");
+                Console.WriteLine("You Lose\n\n");
+                Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
+                Console.WriteLine($"HP {hero.Health}/100\n\n");
+                Console.Write("아무버튼이나 누르세요..");
+                Console.ReadLine();
+            }
+            public static string PadRightForConsole(string input, int totalWidth)//글자 여백 메소드, 한글은 출력 너비가 영어와 달라 사용
+            {
+                int visualLength = 0;
+                foreach (char c in input)
+                    visualLength += (c >= 0xAC00 && c <= 0xD7A3) ? 2 : 1; // 한글은 2, 나머지는 1
+
+                int padding = Math.Max(0, totalWidth - visualLength);
+                return input + new string(' ', padding);
+            }
         }
     }
 }
