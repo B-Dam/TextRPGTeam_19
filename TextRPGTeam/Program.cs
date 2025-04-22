@@ -340,8 +340,10 @@
                     if (num)
                         Console.Write(i + " ");
                     if (item.Equip && equip)
-                    Console.ForegroundColor = ConsoleColor.DarkGreen; // 아이템 장착시 컬러 변경
-                    Console.Write("[E]");
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkGreen; // 아이템 장착시 컬러 변경
+                        Console.Write("[E]");
+                    }
                     Console.Write(item.Name + "\t| ");
                     if (item.Att != 0)
                         Console.Write("공격력 +" + item.Att + " | ");
