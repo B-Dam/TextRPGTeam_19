@@ -366,9 +366,7 @@
                     if (item.Def != 0)
                         Console.Write("방어력 +" + item.Def + " | ");
                     Console.Write(item.Description + " | ");
-                    Console.ForegroundColor = ConsoleColor.DarkCyan;
                     Console.WriteLine(inven.Contains(item) ? "구매완료" : (item.Value + "G"));
-                    Console.ResetColor();
                 }
             }
             // 아이템 리스트 보기(구매 여부 추가)
