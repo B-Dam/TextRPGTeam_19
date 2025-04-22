@@ -481,8 +481,11 @@
                     else if (choice > 0 && choice <= Inventory.Count)
                     {
                         hero.Cash += (int)((float)Inventory[choice - 1].Value * Constants.sale);
-                        hero.EqAtt -= Inventory[choice - 1].Att;
-                        hero.EqDef -= Inventory[choice - 1].Def;
+                        if (Inventory[choice - 1].Equip)
+                        {
+                            hero.EqAtt -= Inventory[choice - 1].Att;
+                            hero.EqDef -= Inventory[choice - 1].Def;
+                        }
                         Inventory.Remove(Inventory[choice - 1]);
                         Console.Clear();
                     }
