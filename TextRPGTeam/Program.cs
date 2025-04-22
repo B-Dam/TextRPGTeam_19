@@ -643,7 +643,6 @@
                         Console.Clear();
                         foe=enemy[choice-1];
                         damage = (int)(hero.Att+hero.EqAtt)+random.Next(-1,2);//공격력과 장비공격력을 더하고 오차 +-1의 데미지
-                        Console.WriteLine($"{hero.Att}+{hero.EqAtt}");
                         enemyHealth[choice-1]-=damage;
                         Console.Write($"\nBattle!!\n\n\n{hero.Name}의 공격!\n\n");
                         Console.Write($"Lv.{foe.Level} {foe.Name} 을(를) 맞췄습니다.");
