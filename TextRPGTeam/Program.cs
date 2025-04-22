@@ -129,8 +129,10 @@
                 Console.WriteLine("    #+#     #+#        #+#    #+#     #+#          #+#    #+# #+#        #+#     +# ");
                 Console.WriteLine("    ###     ########## ###    ###     ###          ###    ### ###         ########  ");
                 Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.Write("-시작하시려면 아무 키나 입력해주세요.");
                 Console.ReadKey();
+                Console.ResetColor();
                 Console.Clear();
                 Console.WriteLine("\n어서오세요, 스파르타 던전에!\n\n모험가님의 이름을 알려주세요.\n");
 
@@ -346,7 +348,7 @@
                     if (item.Def != 0)
                         Console.Write("방어력 +" + item.Def + " | ");
                     Console.WriteLine(item.Description + "\n");
-                    Console.ResetColor(); // 아이템 해제시 색 원상복구
+                    Console.ResetColor(); // 여기까지 컬러 변경 영역
                 }
             }
             // 아이템 리스트 보기
@@ -366,7 +368,18 @@
                     if (item.Def != 0)
                         Console.Write("방어력 +" + item.Def + " | ");
                     Console.Write(item.Description + " | ");
-                    Console.WriteLine(inven.Contains(item) ? "구매완료" : (item.Value + "G"));
+
+                    if (inven.Contains(item))
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
+                        Console.WriteLine("구매완료");
+                    }
+                    else
+                    {
+                        Console.WriteLine(item.Value + "G");
+                    }
+
+                    Console.ResetColor();
                 }
             }
             // 아이템 리스트 보기(구매 여부 추가)
@@ -543,7 +556,7 @@
                         if (hero.Health == 100)
                         {
                             Console.Clear();
-                            Console.WriteLine("\n건강한 상태라 회복할 필요가 없습니다.\n");
+                            Console.WriteLine("\n건강한 상태이므로 회복할 필요가 없습니다.\n");
                         }
                         else if (hero.Cash < 500)
                         {
