@@ -521,34 +521,6 @@
                 }
             }
             //휴식
-            -------------------------------------------------
-            public static void Exp(Character hero, int exp)
-            {
-            //필요한 경험치를 더한다
-            hero.Exp += exp;
-            Console.WriteLine($"\n[EXP +{exp}] 현재 경험치: {hero.Exp} / {hero.ExpToLevelUp}");
-
-                //반복
-                while (hero.Exp >- hero.ExpToLevelUp) ;
-                {
-
-                    hero.Exp -= hero.ExpToLevelUp; //레벨업하면 경험치량 초기화
-                    hero.Level ++ ;
-                    hero.ExpToLevelUp += 30; //레벨업할수록 필요한 경험치 30씩 증가
-
-            
-        
-                    //레벨업시
-                    hero.Att += 1; //힘 1증가
-                    hero.Def += 1; //방어 1증가
-                    hero.Health = 100; //체력 100회복
-                    hero.Cash += 500; //캐쉬 500원
-    
-                    Console.WriteLine($"\n레벨업!:{hero.Level}이 되었습니다.");
-                    Console.WriteLine("공격력,방어력 증가 Cash 500+");
-                }
-            }
-            
         }
     }
 }
