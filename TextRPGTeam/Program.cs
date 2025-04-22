@@ -487,8 +487,11 @@
                     else if (choice > 0 && choice <= Inventory.Count)
                     {
                         hero.Cash += (int)((float)Inventory[choice - 1].Value * Constants.sale);
-                        hero.EqAtt -= Inventory[choice - 1].Att;
-                        hero.EqDef -= Inventory[choice - 1].Def;
+                        if (Inventory[choice - 1].Equip)
+                        {
+                            hero.EqAtt -= Inventory[choice - 1].Att;
+                            hero.EqDef -= Inventory[choice - 1].Def;
+                        }
                         Inventory.Remove(Inventory[choice - 1]);
                         Console.Clear();
                     }
@@ -640,6 +643,7 @@
                         Console.Clear();
                         foe=enemy[choice-1];
                         damage = (int)(hero.Att+hero.EqAtt)+random.Next(-1,2);//공격력과 장비공격력을 더하고 오차 +-1의 데미지
+                        Console.WriteLine($"{hero.Att}+{hero.EqAtt}");
                         enemyHealth[choice-1]-=damage;
                         Console.Write($"\nBattle!!\n\n\n{hero.Name}의 공격!\n\n");
                         Console.Write($"Lv.{foe.Level} {foe.Name} 을(를) 맞췄습니다.");
