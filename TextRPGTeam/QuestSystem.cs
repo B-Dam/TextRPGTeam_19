@@ -1,203 +1,225 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using TextRPGTeam;
 
 namespace TextRPGTeam.QuestSystem
 {
-    // 퀘스트 정보 클래스
-    public class Quest
+    public enum QuestStatus { InProgress, Completed, Rewarded }
+
+    // 추상 기반 퀘스트 클래스
+    public abstract class Quest
     {
-        public int Id { get; }                 // 퀘스트 구분용 ID
-        public string Name { get; }            // 퀘스트 제목
-        public string Description { get; }     // 퀘스트 설명
-        public int RequiredCount { get; }      // 목표 수치
-        public int CurrentCount { get; private set; } // 진행도
-        public int RewardGold { get; }         // 골드 보상
-        public Item RewardItem { get; }      // 보상 아이템
+        public int Id { get; }
+        public string Title { get; }
+        public string Description { get; }
+        public QuestStatus Status { get; protected set; } = QuestStatus.InProgress; // 퀘스트 진행 상태 (진행중, 완료, 보상받음)
+        public Item Reward { get; }
+        public bool IsAccepted { get; private set; } = false;
 
-        public bool IsAccepted { get; private set; }
-        public bool IsCompleted => CurrentCount >= RequiredCount;
-        public bool IsRewardClaimed { get; private set; }
-        public void Accept()
-        {
-            if (!IsAccepted)
-            {
-                IsAccepted = true;
-                Console.WriteLine($"퀘스트 '{Name}' 수락!");
-            }
-        }
-
-        // 진행도를 올려주는 메서드
-        public void IncrementProgress(int amount = 1)
-        {
-            if (!IsAccepted || IsCompleted) return;
-
-            // 목표치를 넘지 않도록
-            CurrentCount = Math.Min(CurrentCount + amount, RequiredCount);
-        }
-
-        // 보상 받기 버튼을 눌렀을 때 호출
-        public void ClaimReward(Character hero)
-        {
-            if (!IsCompleted || IsRewardClaimed) return;
-
-            hero.Cash += RewardGold;
-            if (RewardItem != null)
-                hero.Inventory.Add(RewardItem);
-
-            Console.WriteLine($"보상: {RewardGold}G {(RewardItem != null ? $"+ {RewardItem.Name} 획득" : "")}");
-            IsRewardClaimed = true;
-        }
-
-        public Quest(int id, string name, string description, int requiredCount, int rewardGold, Item rewardItem = null)
+        protected Quest(int id, string title, string description, Item reward)
         {
             Id = id;
-            Name = name;
+            Title = title;
             Description = description;
+            Reward = reward;
+        }
+
+        // 이벤트 (레벨업, 장착, 몹 처치, 던전 클리어)
+        public virtual void OnLevelUp(int newLevel) { }
+        public virtual void OnEquipChanged(Item item, bool isEquipped) { }
+        public virtual void OnMonsterKilled(string monsterType) { }
+        public virtual void OnDungeonCleared(string dungeonName) { }
+
+        // 퀘스트 수락 설정
+        public void Accept()
+        {
+            if (Status == QuestStatus.InProgress)
+                IsAccepted = true;
+        }
+
+        // 퀘스트 완료 처리
+        protected void Complete()
+        {
+            if (Status == QuestStatus.InProgress)
+                Status = QuestStatus.Completed;
+        }
+
+        // 보상 수령
+        public bool ClaimReward(List<Item> inventory)
+        {
+            if (Status == QuestStatus.Completed)
+            {
+                inventory.Add(Reward);
+                Status = QuestStatus.Rewarded;
+                return true;
+            }
+            return false;
+        }
+    }
+
+    // 레벨 달성 퀘스트
+    public class LevelQuest : Quest
+    {
+        public int TargetLevel { get; }
+
+        public LevelQuest(int id, string title, string description, int targetLevel, Item reward)
+            : base(id, title, description, reward)
+        {
+            TargetLevel = targetLevel;
+        }
+
+        public override void OnLevelUp(int newLevel)
+        {
+            if (newLevel >= TargetLevel)
+                Complete();
+        }
+    }
+
+    // 장비 장착 여부 퀘스트
+    public class EquipQuest : Quest
+    {
+        public string RequiredType { get; }
+
+        public EquipQuest(int id, string title, string description,
+                          string requiredType, Item reward)
+            : base(id, title, description, reward)
+        {
+            RequiredType = requiredType;
+        }
+
+        public override void OnEquipChanged(Item item, bool isEquipped)
+        {
+            if (item.Type.Equals(RequiredType, StringComparison.OrdinalIgnoreCase)
+                && isEquipped)
+            {
+                Complete();
+            }
+        }
+    }
+
+    // 몬스터 처치 퀘스트
+    public class KillQuest : Quest
+    {
+        public string MonsterType { get; }
+        public int RequiredCount { get; }
+        private int currentCount;
+        public int Progress => currentCount;
+
+        public KillQuest(int id, string title, string description,
+                         string monsterType, int requiredCount, Item reward)
+            : base(id, title, description, reward)
+        {
+            MonsterType = monsterType;
             RequiredCount = requiredCount;
-            RewardGold = rewardGold;
-            RewardItem = rewardItem;
-            CurrentCount = 0;
-        }
-        public static class QuestDatabase
-        {
-            // ID로 퀘스트를 생성할 수 있게 함
-            private static readonly Dictionary<int, Func<Quest>> _registry = new()
-            {
-                { 1, () => new Quest(
-                        id: 1,
-                        name: "미니언 5마리 처치",
-                        description: "이봐! 마을 근처에 미니언들이 너무 많아졌다고 생각하지 않나??\n마을주민들의 안전을 위해서라도 저것들 수를 좀 줄여야 한다고!\n자네가 좀 처치해주게!",
-                        requiredCount: 5,
-                        rewardGold: 5,
-                        rewardItem: ""
-                    )
-                },
-                { 2, () => new Quest(
-                        id: 2,
-                        name: "장비를 장착해보자",
-                        description: "장비를 한 번이라도 착용해 보세요!",
-                        requiredCount: 1,
-                        rewardGold: 10
-                    )
-                },
-                { 3, () => new Quest(
-                        id: 3,
-                        name: "더 강해지기!",
-                        description: "레벨을 2 이상 달성해 보세요!",
-                        requiredCount: 2,
-                        rewardGold: 20
-                    )
-                }
-            // … 더 많은 퀘스트를 여기서 등록 …
-        };
-
-
-            // 주어진 ID로 새 Quest 인스턴스를 만들어 반환.
-            public static Quest Create(int id)
-            {
-                if (_registry.TryGetValue(id, out var factory))
-                    return factory();
-                throw new KeyNotFoundException($"Quest ID {id} 가 등록되어 있지 않습니다.");
-            }
         }
 
-        // 모든 퀘스트를 관리하는 매니저
-        public class QuestManager
+        public override void OnMonsterKilled(string monsterType)
         {
-            private readonly List<Quest> _quests = new();
-
-            public IReadOnlyList<Quest> AllQuests => _quests;
-
-            //직접 Quest 객체를 추가
-            public void AddQuest(Quest quest)
+            if (Status != QuestStatus.InProgress) return;
+            if (monsterType.Equals(MonsterType, StringComparison.OrdinalIgnoreCase))
             {
-                _quests.Add(quest);
+                currentCount++;
+                if (currentCount >= RequiredCount)
+                    Complete();
             }
+        }
+    }
 
-            // ID 하나로 QuestDatabase에서 뽑아와 추가
-            public void AddQuestById(int id)
-            {
-                var q = QuestDatabase.Create(id);
-                _quests.Add(q);
-            }
+    // 던전 클리어 퀘스트
+    public class DungeonQuest : Quest
+    {
+        public string DungeonName { get; }
 
-            public void OnMonsterDefeated()
+        public DungeonQuest(int id, string title, string description,
+                            string dungeonName, Item reward)
+            : base(id, title, description, reward)
+        {
+            DungeonName = dungeonName;
+        }
+
+        public override void OnDungeonCleared(string dungeonName)
+        {
+            if (dungeonName.Equals(DungeonName, StringComparison.OrdinalIgnoreCase))
+                Complete();
+        }
+    }
+
+    // 퀘스트 매니저
+    public class QuestManager
+    {
+        private readonly List<Quest> quests = new List<Quest>();
+
+        //등록된 모든 퀘스트 읽기 전용 리스트
+        public IReadOnlyList<Quest> Quests => quests.AsReadOnly();
+
+        public void AddQuest(Quest quest) => quests.Add(quest);
+
+        //id 로 퀘스트를 수락 처리(없으면 무시)
+        public void AcceptQuest(int questId)
+        {
+            var q = quests.FirstOrDefault(x => x.Id == questId);
+            if (q != null)
+                q.Accept();
+        }
+
+        public void OnLevelUp(int newLevel)
+        {
+            foreach (var q in quests)
+                q.OnLevelUp(newLevel);
+        }
+        public void OnEquipChanged(Item item, bool isEquipped)
+        {
+            foreach (var q in quests)
+                q.OnEquipChanged(item, isEquipped);
+        }
+        public void OnMonsterKilled(string monsterType)
+        {
+            foreach (var q in quests)
+                q.OnMonsterKilled(monsterType);
+        }
+        public void OnDungeonCleared(string dungeonName)
+        {
+            foreach (var q in quests)
+                q.OnDungeonCleared(dungeonName);
+        }
+
+        // 완료된 퀘스트에 대해 보상 지급
+        public void CheckRewards(List<Item> inventory)
+        {
+            foreach (var q in quests)
             {
-                foreach (var q in _quests)
-                    if (q.IsAccepted && !q.IsCompleted)
-                        q.IncrementProgress();
+                if (q.Status == QuestStatus.Completed)
+                    if (q.ClaimReward(inventory))
+                        Console.WriteLine($"퀘스트 '{q.Title}' 완료! 보상 '{q.Reward.Name}' 획득!");
             }
         }
 
-        // 퀘스트 UI를 담당하는 클래스
-        public static class QuestUI
+        // 퀘스트 상태 출력
+        public void ShowQuestStatus()
         {
-            // 퀘스트 메뉴를 보여주고, 수락·거절·보상받기 처리.
-            public static void ShowQuestMenu(QuestManager qm, Character hero)
+            Console.WriteLine("\n< 퀘스트 현황 >");
+            foreach (var q in quests)
             {
-                while (true)
-                {
-                    Console.Clear();
-                    Console.WriteLine("\n=== Quest !! ===\n");
-
-                    var quests = qm.AllQuests;
-
-                    for (int i = 0; i < quests.Count; i++)
-                    {
-                        var q = quests[i];
-                        string status = !q.IsAccepted ? "(미수락)"
-                                      : q.IsRewardClaimed ? "(보상받음)"
-                                      : q.IsCompleted ? "(완료)"
-                                      : "(진행중)";
-                        Console.WriteLine($"{i + 1}. {q.Name} {status}");
-                    }
-                    Console.WriteLine("\n0. 나가기");
-                    Console.Write("\n원하시는 퀘스트 번호를 입력해주세요!\n>> ");
-
-                    if (!int.TryParse(Console.ReadLine(), out int sel) || sel < 0 || sel > quests.Count)
-                        continue;
-
-                    if (sel == 0)
-                    {
-                        Console.Clear();
-                        break;
-                    }
-
-                    var chosen = quests[sel - 1];
-                    Console.Clear();
-                    Console.WriteLine($"\n--- {chosen.Name} ---\n");
-                    Console.WriteLine(chosen.Description);
-                    Console.WriteLine($"\n진행도: {chosen.CurrentCount}/{chosen.RequiredCount}");
-                    Console.WriteLine($"\n보상: {chosen.RewardGold}G"
-                                    + (chosen.RewardItem != null ? $", {chosen.RewardItem}" : ""));
-
-                    if (!chosen.IsAccepted)
-                    {
-                        Console.WriteLine("\n1. 수락   2. 거절");
-                        var input = Console.ReadLine();
-                        if (input == "1") chosen.Accept();
-                        // 2번(거절)이거나 다른 입력 모두 메뉴로 돌아감
-                    }
-                    else if (chosen.IsCompleted && !chosen.IsRewardClaimed)
-                    {
-                        Console.WriteLine("\n1. 보상받기   2. 돌아가기");
-                        var input = Console.ReadLine();
-                        if (input == "1")
-                        {
-                            chosen.ClaimReward(hero);
-                            Console.WriteLine("엔터키를 누르면 돌아갑니다.");
-                            Console.ReadLine();
-                        }
-                    }
-                    else
-                    {
-                        // 진행중 혹은 이미 보상받음
-                        Console.WriteLine("\n엔터키를 누르면 돌아갑니다.");
-                        Console.ReadLine();
-                    }
-                }
+                Console.WriteLine($"[{q.Status}] {q.Title}: {q.Description}");
+                if (q is KillQuest kq)
+                    Console.WriteLine($" - 진행도: {kq.Progress}/{kq.RequiredCount}");
             }
         }
     }
 }
+
+//레벨업 후
+//questMgr.OnLevelUp(hero.Level);
+
+////장비 장착/ 해제시
+//questMgr.OnEquipChanged(selectedItem, isNowEquipped);
+
+////몬스터 처치 직후 
+//questMgr.OnMonsterKilled(monster.Type);
+
+////던전 클리어시
+//questMgr.OnDungeonCleared(currentDungeonName);
+
+////퀘스트 진행도 확인 UI
+//questMgr.ShowQuestStatus();
