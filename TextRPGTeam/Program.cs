@@ -545,12 +545,12 @@
             }
             //휴식
 
-            public static void Battle(List<Monster> mob, Character hero)
+            public static void Battle(List<Monster> mob, Character hero)//배틀 메소드
             {
                 bool allDead;
                 Random random = new Random();
                 int mobCount = random.Next(1, 4);//몬스터 생성 마릿수
-                int[] enemyHealth = new int[mobCount];
+                int[] enemyHealth = new int[mobCount];//몬스터 체력 저장 변수, class는 같은 종류의 몬스터들의 체력을 하나로 보아 필요
                 int i;
                 List<Monster> enemy = new List<Monster> { };//전투시의 적 리스트
 
@@ -600,7 +600,7 @@
                     }
                 }
             }
-            public static void BattleAttack(List<Monster> enemy, Character hero, int[] enemyHealth) 
+            public static void BattleAttack(List<Monster> enemy, Character hero, int[] enemyHealth) //플레이어 공격시 메소드
             {
                 Random random = new Random();
                 int choice;
@@ -650,7 +650,7 @@
                     else { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break; }
                 }
             }
-            public static void EnemyAttack(List<Monster> enemy, Character hero,int[] enemyHealth)
+            public static void EnemyAttack(List<Monster> enemy, Character hero,int[] enemyHealth)//적군 공격시 메소드
             {
                 Random random = new Random();
                 int damage;
@@ -679,7 +679,7 @@
                     }
                 }
             }
-            public static void BattleVictory(List<Monster> enemy, Character hero) 
+            public static void BattleVictory(List<Monster> enemy, Character hero) //배틀 승리시 메소드
             {
                 Console.Clear();
                 Console.WriteLine("\nBattle - Result\n\n");
@@ -690,7 +690,7 @@
                 Console.Write("아무버튼이나 누르세요..");
                 Console.ReadLine();
             }
-            public static void BattleDefeat(List<Monster> enemy, Character hero) 
+            public static void BattleDefeat(List<Monster> enemy, Character hero) //배틀 패배시 메소드
             {
                 hero.Health = 0;
                 Console.Clear();
@@ -701,7 +701,7 @@
                 Console.Write("아무버튼이나 누르세요..");
                 Console.ReadLine();
             }
-            public static string PadRightForConsole(string input, int totalWidth)//글자 여백 메소드
+            public static string PadRightForConsole(string input, int totalWidth)//글자 여백 메소드, 한글은 출력 너비가 영어와 달라 사용
             {
                 int visualLength = 0;
                 foreach (char c in input)
