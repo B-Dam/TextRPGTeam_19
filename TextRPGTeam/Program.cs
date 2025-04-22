@@ -121,6 +121,17 @@
                 int choice;
                 int count = 0;
 
+                Console.WriteLine("::::::::::: :::::::::: :::    ::: :::::::::::      :::::::::  :::::::::   ::::::::  ");
+                Console.WriteLine("    :+:     :+:        :+:    :+:     :+:          :+:    :+: :+:    :+: :+:    :+: ");
+                Console.WriteLine("    +:+     +:+         +:+  +:+      +:+          +:+    +:+ +:+    +:+ +:+        ");
+                Console.WriteLine("    +#+     +#++:++#     +#++:+       +#+          +#++:++#:  +#++:++#+  :#:        ");
+                Console.WriteLine("    +#+     +#+         +#+  +#+      +#+          +#+    +#+ +#+        +#+   +#+# ");
+                Console.WriteLine("    #+#     #+#        #+#    #+#     #+#          #+#    #+# #+#        #+#     +# ");
+                Console.WriteLine("    ###     ########## ###    ###     ###          ###    ### ###         ########  ");
+                Console.WriteLine();
+                Console.Write("-시작하시려면 아무 키나 입력해주세요.");
+                Console.ReadKey();
+                Console.Clear();
                 Console.WriteLine("\n어서오세요, 스파르타 던전에!\n\n모험가님의 이름을 알려주세요.\n");
 
                 hero.Name = Console.ReadLine(); // 이름 선택
@@ -327,13 +338,15 @@
                     if (num)
                         Console.Write(i + " ");
                     if (item.Equip && equip)
-                        Console.Write("[E]");
+                    Console.ForegroundColor = ConsoleColor.DarkGreen; // 아이템 장착시 컬러 변경
+                    Console.Write("[E]");
                     Console.Write(item.Name + "\t| ");
                     if (item.Att != 0)
                         Console.Write("공격력 +" + item.Att + " | ");
                     if (item.Def != 0)
                         Console.Write("방어력 +" + item.Def + " | ");
                     Console.WriteLine(item.Description + "\n");
+                    Console.ResetColor(); // 아이템 해제시 색 원상복구
                 }
             }
             // 아이템 리스트 보기
@@ -353,7 +366,9 @@
                     if (item.Def != 0)
                         Console.Write("방어력 +" + item.Def + " | ");
                     Console.Write(item.Description + " | ");
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
                     Console.WriteLine(inven.Contains(item) ? "구매완료" : (item.Value + "G"));
+                    Console.ResetColor();
                 }
             }
             // 아이템 리스트 보기(구매 여부 추가)
