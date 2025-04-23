@@ -37,6 +37,17 @@ namespace TextRPGTeam.QuestSystem
             if (Status == QuestStatus.InProgress)
                 IsAccepted = true;
         }
+        
+        // 퀘스트 포기 설정
+        public void Abandon()
+        {
+            if (Status == QuestStatus.InProgress)
+                IsAccepted = false;
+            ResetProgress();
+        }
+
+        // 진행도 초기화 메서드
+        protected virtual void ResetProgress() { }
 
         // 퀘스트 완료 처리
         protected void Complete()
@@ -124,6 +135,10 @@ namespace TextRPGTeam.QuestSystem
                     Complete();
             }
         }
+        protected override void ResetProgress()
+        {
+            currentCount = 0;
+        }
     }
 
     // 던전 클리어 퀘스트
@@ -161,6 +176,11 @@ namespace TextRPGTeam.QuestSystem
             var q = quests.FirstOrDefault(x => x.Id == questId);
             if (q != null)
                 q.Accept();
+        }
+        public void AbandonQuest(int questId)
+        {
+            var q = quests.FirstOrDefault(x => x.Id == questId);
+            q?.Abandon();
         }
 
         public void OnLevelUp(int newLevel)
