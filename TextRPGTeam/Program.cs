@@ -898,7 +898,6 @@ namespace TextRPGTeam
                 Console.WriteLine("공격력,방어력 증가 Cash 500+");
             }
         }
-<<<<<<< HEAD
         public static void Status(Character c)
         {
             Console.Clear();
@@ -1623,8 +1622,4 @@ namespace TextRPGTeam
                 }
             }
         }
-        // 퀘스트 관련 메서드 끝 --------------------------------------------------------------------
-=======
->>>>>>> parent of 65bc504 (Merge branch 'feature/quest_2' into develop)
     }
-}
