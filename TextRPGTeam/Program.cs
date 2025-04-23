@@ -62,6 +62,9 @@ namespace TextRPGTeam
         public int Cash = 1500;
         public int Exp = 0; //경험치
         public int ExpToLevelUp = 30;//필요경험치
+        public Random random = new Random();
+        public int CritRate = 15; // 치명타 확률
+        public float CritMultiplier = 1.6f; // 치명타 배율
     }
     // 플레이어
 
@@ -99,6 +102,7 @@ namespace TextRPGTeam
         public string Name;
         public int Hp;
         public int Att;
+        public int EvadeRate = 10; // 회피
         public Monster(int l, string n, int h, int a) : this()
         {
             Level = l;
@@ -117,6 +121,20 @@ namespace TextRPGTeam
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("::::::::::: :::::::::: :::    ::: :::::::::::      :::::::::  :::::::::   ::::::::  ");
+            Console.WriteLine("    :+:     :+:        :+:    :+:     :+:          :+:    :+: :+:    :+: :+:    :+: ");
+            Console.WriteLine("    +:+     +:+         +:+  +:+      +:+          +:+    +:+ +:+    +:+ +:+        ");
+            Console.WriteLine("    +#+     +#++:++#     +#++:+       +#+          +#++:++#:  +#++:++#+  :#:        ");
+            Console.WriteLine("    +#+     +#+         +#+  +#+      +#+          +#+    +#+ +#+        +#+   +#+# ");
+            Console.WriteLine("    #+#     #+#        #+#    #+#     #+#          #+#    #+# #+#        #+#     +# ");
+            Console.WriteLine("    ###     ########## ###    ###     ###          ###    ### ###         ########  ");
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("-시작하시려면 아무 키나 입력해주세요.");
+            Console.ReadKey();
+            Console.ResetColor();
+            Console.Clear();
+
             Character hero = new Character(); // 플레이어 정보
 
             Class[] job = // 직업
@@ -366,13 +384,17 @@ namespace TextRPGTeam
                 if (num)
                     Console.Write(i + " ");
                 if (item.Equip && equip)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGreen; // 아이템 장착시 컬러 변경
                     Console.Write("[E]");
+                }
                 Console.Write($"{PadRightForConsole(item.Name,16)}| ");
                 if (item.Att != 0)
                     Console.Write("공격력 +" + item.Att + " | ");
                 if (item.Def != 0)
                     Console.Write("방어력 +" + item.Def + " | ");
                 Console.WriteLine(item.Description + "\n");
+                Console.ResetColor(); // 여기까지 컬러 변경 영역
             }
         }
         // 아이템 리스트 보기
@@ -732,20 +754,37 @@ namespace TextRPGTeam
                 {
                     Console.Clear();
                     foe = enemy[choice - 1];
+                    bool isEvaded = random.Next(0, 100) < foe.EvadeRate;
+                    bool isCritical = random.Next(0, 100) < hero.CritRate;
                     damage = (int)(hero.Att + hero.EqAtt) + random.Next(-1, 2);//공격력과 장비공격력을 더하고 오차 +-1의 데미지
-                    enemyHealth[choice - 1] -= damage;
-                    Console.Write($"\nBattle!!\n\n\n{hero.Name}의 공격!\n\n");
-                    Console.Write($"Lv.{foe.Level} {foe.Name} 을(를) 맞췄습니다.");
-                    Console.Write($"[데미지 : {damage}]\n\n\n");
-                    Console.Write($"Lv.{foe.Level} {foe.Name}\n\n");
-                    if (enemyHealth[choice - 1] > 0)
-                        Console.Write($"HP {enemyHealth[choice - 1] + damage} -> {enemyHealth[choice - 1]}");
+
+                    if (isEvaded) //몬스터 회피
+                    {
+                        damage = 0;
+                        Console.WriteLine($"{foe.Name} 을(를) 공격했지만 아무일도 일어나지 않았습니다.");
+                    }
                     else
-                        Console.Write($"HP {enemyHealth[choice - 1] + damage} -> Dead");
-                    Console.Write("\n\n\n아무버튼이나 누르세요..");
-                    Console.ReadLine();
-                    EnemyAttack(enemy, hero, enemyHealth);
-                    break;
+                    {
+                        if (isCritical) //플레이어 치명타
+                        {
+                            damage = (int)(damage * hero.CritMultiplier);
+                            Console.WriteLine($"{foe.Name} 을(를) 맞췄습니다. [데미지 : {damage}] - 치명타 공격!!");
+                        }
+
+                        enemyHealth[choice - 1] -= damage;
+                        Console.Write($"\nBattle!!\n\n\n{hero.Name}의 공격!\n\n");
+                        Console.Write($"Lv.{foe.Level} {foe.Name} 을(를) 맞췄습니다.");
+                        Console.Write($"[데미지 : {damage}]\n\n\n");
+                        Console.Write($"Lv.{foe.Level} {foe.Name}\n\n");
+                        if (enemyHealth[choice - 1] > 0)
+                            Console.Write($"HP {enemyHealth[choice - 1] + damage} -> {enemyHealth[choice - 1]}");
+                        else
+                            Console.Write($"HP {enemyHealth[choice - 1] + damage} -> Dead");
+                        Console.Write("\n\n\n아무버튼이나 누르세요..");
+                        Console.ReadLine();
+                        EnemyAttack(enemy, hero, enemyHealth);
+                        break;
+                    }
                 }
                 else { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break; }
             }
