@@ -232,7 +232,7 @@ namespace TextRPGTeam
             while (true) // 메인 화면
             {
                 Console.WriteLine("\n" + hero.Name + "님, 다음은 무엇을 할지 선택해 주세요.\n\n");
-                Console.Write("1. 상태 보기\n\n2. 인벤토리\n\n3. 상점\n\n4. 던전입장\n\n5. 휴식하기\n\n>>");
+                Console.Write("1. 상태 보기\n\n2. 인벤토리\n\n3. 상점\n\n4. 던전입장\n\n5. 휴식하기\n\n6. 퀘스트\n\n>>");
 
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
