@@ -60,6 +60,8 @@
             public int Health;
             public int Mana;
             public int Cash = 1500;
+            public int Exp = 0; //경험치
+            public int ExpToLevelUp = 30;//필요경험치
         }
         // 플레이어
 
@@ -174,7 +176,7 @@
                         case 1:
                             {
                                 Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                                Status(hero);//상태보기
+                                Status(hero,hero);//상태보기
                                 break;
                             }
                         case 2:
@@ -209,7 +211,7 @@
                     }
                 }
             }
-            public static void Status(Character c)
+            public static void Status(Character c, Character hero)
             {
                 Console.Clear();
 
@@ -223,6 +225,7 @@
                     Console.WriteLine("체 력 : " + c.Health + "\n");
                     Console.WriteLine("마 력 : " + c.Mana + "\n");
                     Console.WriteLine("Gold : " + c.Cash + " G\n");
+                    Console.WriteLine($"현재 경험치: {hero.Exp} / {hero.ExpToLevelUp}");
                     Console.Write("\n\n0. 나가기\n\n원하시는 행동을 입력해주세요.\n>>");
                     if (Console.ReadLine() != "0")
                     {
@@ -695,8 +698,13 @@
                 Console.WriteLine("\nBattle - Result\n\n");
                 Console.WriteLine("Victory\n\n");
                 Console.WriteLine($"던전에서 몬스터 {enemy.Count}마리를 잡았습니다.\n\n");
+                
+                int totalExp = enemy.Count * 10; //몬스터 x 경험치10
+                
                 Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
                 Console.WriteLine($"HP {hero.Health}/100\n\n");
+                Console.WriteLine($"경험치를 흭득하셨습니다:{hero.ExpToLevelUp}"); //승리시 경험치 흭득 
+                Exp(hero, totalExp);
                 Console.Write("아무버튼이나 누르세요..");
                 Console.ReadLine();
             }
@@ -720,6 +728,34 @@
                 int padding = Math.Max(0, totalWidth - visualLength);
                 return input + new string(' ', padding);
             }
+            public static void Exp(Character hero, int exp)
+            {
+
+                int Level = 1;
+                int ExpToLevelUp;
+
+                //필요한 경험치를 더한다
+                hero.Exp += exp;
+                if (Level == 1)
+                    ExpToLevelUp = 30;
+
+                //반복
+                while (hero.Exp >= hero.ExpToLevelUp)
+                {
+                    hero.Exp -= hero.ExpToLevelUp; //레벨업하면 경험치량 초기화
+                    hero.Level++;
+                    hero.ExpToLevelUp += 30; //레벨업할수록 필요한 경험치 30씩 증가
+
+                    //레벨업시
+                    hero.Att += 1; //힘 1증가
+                    hero.Def += 1; //방어 1증가
+                    hero.Health = 100; //체력 100회복
+                    hero.Cash += 500; //캐쉬 500원
+
+                    Console.WriteLine($"\n레벨업!:{hero.Level}이 되었습니다.");
+                    Console.WriteLine("공격력,방어력 증가 Cash 500+");
+                }
+            }
         }
     }
-}
+ }
