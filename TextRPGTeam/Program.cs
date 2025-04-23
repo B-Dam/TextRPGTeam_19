@@ -59,6 +59,8 @@
             public float EqDef = 0; // 장비 방어력
             public int Health;
             public int Mana;
+            public int MaxHealth;
+            public int MaxMana;
             public int Cash = 1500;
         }
         // 플레이어
@@ -119,9 +121,9 @@
                 
                 Class[] job = // 직업
                     [
-                         new Class("전사", "전사입니다.", 10, 5),
-                         new Class("도적", "도적입니다.", 15, 3),
-                         new Class("마법사", "마법사입니다.", 8, 6)
+                         new Class("전사", "전사입니다.", 10, 5,100,50),
+                         new Class("도적", "도적입니다.", 15, 3, 80, 50),
+                         new Class("마법사", "마법사입니다.", 8, 6, 70, 100)
                     ];
 
                 List<Item> shop = new List<Item> // 상점 아이템
@@ -144,7 +146,7 @@
                 Potion bluePotion = new Potion("파랑포션", "마나 50 회복", 0, 50, 70);
                 Potion highPotion = new Potion("엘릭서", "체력&마나 100 회복", 100, 100, 1000);
 
-                PotionInven[] potionInventory = { new PotionInven(redPotion, 3), new PotionInven(bluePotion, 0), new PotionInven(highPotion, 0) };
+                PotionInven[] potionInventory = { new PotionInven(redPotion, 3), new PotionInven(bluePotion, 0), new PotionInven(highPotion, 1) };
 
                 List<Monster> mob = new List<Monster> {
                     new Monster(2,"미니언",15,5),
@@ -184,6 +186,8 @@
                         hero.Def = job[choice - 1].Def;
                         hero.Health = job[choice - 1].Health;
                         hero.Mana = job[choice - 1].Mana;
+                        hero.MaxHealth = job[choice - 1].Health;
+                        hero.MaxMana = job[choice - 1].Mana;
                         break;
                     }
                     else
@@ -232,7 +236,7 @@
                         case 5:
                             {
                                 Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                                Rest(hero);//회복 하기
+                                Rest(hero,potionInventory);//회복 하기
                                 break;
                             }
                         default:
@@ -538,17 +542,22 @@
             }
             // 아이템 판매
 
-            public static void Rest(Character hero)
+            public static void Rest(Character hero, PotionInven[] potionInventory)
             {
                 int choice;
-
+                int count;
                 Console.Clear();
 
                 while (true)
                 {
+                    count = 0;
                     Console.Write("\n회복\n\n포션을 사용하여 회복할 수 있습니다. ");
-                    Console.WriteLine("(현재체력 : " + hero.Health + ")\n");
-                    Console.WriteLine("\n1. 휴식하기\n\n0. 나가기");
+                    Console.WriteLine($"(현재체력 : {hero.Health} / 현재마나 : {hero.Mana})\n");
+                    foreach(PotionInven potion in potionInventory){
+                        count++;
+                        Console.WriteLine($"{count}. {potion.potion.Name} : {potion.potion.Description} ({potion.Count}개)\n");
+                    }
+                    Console.WriteLine("\n0. 나가기");
                     Console.Write("\n원하시는 행동을 입력해주세요\n>>");
 
                     try { choice = int.Parse(Console.ReadLine()); }
@@ -559,25 +568,22 @@
                         Console.Clear();
                         break;
                     }
-                    else if (choice == 1)
+                    else if (choice >0&&choice<=count)
                     {
-                        if (hero.Health == 100)
+                        if (0 >= potionInventory[choice-1].Count)
                         {
                             Console.Clear();
-                            Console.WriteLine("\n건강한 상태라 회복할 필요가 없습니다.\n");
-                        }
-                        else if (hero.Cash < 500)
-                        {
-                            Console.Clear();
-                            Console.WriteLine("\nGold가 부족합니다.\n");
+                            Console.WriteLine($"\n{potionInventory[choice-1].potion.Name}(이)가 부족합니다.\n");
                         }
                         else
                         {
-                            hero.Health = 100;
-                            hero.Mana = 50;
-                            hero.Cash -= 500;
+                            potionInventory[choice - 1].Count--;
+                            hero.Health += potionInventory[choice - 1].potion.Heal;
+                            if (hero.Health > hero.MaxHealth) hero.Health = hero.MaxHealth;
+                            hero.Mana += potionInventory[choice - 1].potion.Mana;
+                            if (hero.Mana > hero.MaxMana) hero.Mana = hero.MaxMana;
                             Console.Clear();
-                            Console.WriteLine("\n휴식을 완료했습니다...\n");
+                            Console.WriteLine($"\n{potionInventory[choice - 1].potion.Name}을(를) 사용하였습니다!\n");
                         }
                     }
                     else
