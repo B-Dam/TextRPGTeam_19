@@ -771,20 +771,27 @@ namespace TextRPGTeam
                     if (isEvaded) //몬스터 회피
                     {
                         damage = 0;
+                        Console.Clear();
+                        Console.Write($"\nBattle!!\n\n\n{hero.Name}의 공격!\n\n");
                         Console.WriteLine($"{foe.Name} 을(를) 공격했지만 아무일도 일어나지 않았습니다.");
+                        Console.Write("\n\n\n아무버튼이나 누르세요..");
+                        Console.ReadLine();
+                        EnemyAttack(enemy, hero, enemyHealth);
+                        break;
                     }
                     else
                     {
+                        string critText = "";
                         if (isCritical) //플레이어 치명타
                         {
                             damage = (int)(damage * hero.CritMultiplier);
-                            Console.WriteLine($"{foe.Name} 을(를) 맞췄습니다. [데미지 : {damage}] - 치명타 공격!!");
+                            critText = " - 치명타 공격!!";
                         }
 
                         enemyHealth[choice - 1] -= damage;
                         Console.Write($"\nBattle!!\n\n\n{hero.Name}의 공격!\n\n");
                         Console.Write($"Lv.{foe.Level} {foe.Name} 을(를) 맞췄습니다.");
-                        Console.Write($"[데미지 : {damage}]\n\n\n");
+                        Console.Write($"[데미지 : {damage}]{critText}\n\n\n");
                         Console.Write($"Lv.{foe.Level} {foe.Name}\n\n");
                         if (enemyHealth[choice - 1] > 0)
                             Console.Write($"HP {enemyHealth[choice - 1] + damage} -> {enemyHealth[choice - 1]}");
