@@ -82,11 +82,7 @@ namespace TextRPGTeam.QuestSystem
 
         public override void OnLevelUp(int newLevel)
         {
-<<<<<<< Updated upstream
             if (newLevel >= TargetLevel) // 레벨이 타겟 레벨 보다 높을 시 완료 처리.
-=======
-            if (newLevel >= TargetLevel)
->>>>>>> Stashed changes
                 Complete();
         }
     }
@@ -105,11 +101,7 @@ namespace TextRPGTeam.QuestSystem
 
         public override void OnEquipChanged(Item item, bool isEquipped)
         {
-<<<<<<< Updated upstream
             if (item.Type.Equals(RequiredType, StringComparison.OrdinalIgnoreCase) // 지정된 타입의 장비를 장착 시 완료 처리.
-=======
-            if (item.Type.Equals(RequiredType, StringComparison.OrdinalIgnoreCase)
->>>>>>> Stashed changes
                 && isEquipped)
             {
                 Complete();
@@ -136,17 +128,10 @@ namespace TextRPGTeam.QuestSystem
         public override void OnMonsterKilled(string monsterType)
         {
             if (Status != QuestStatus.InProgress) return;
-<<<<<<< Updated upstream
             if (monsterType.Equals(MonsterType, StringComparison.OrdinalIgnoreCase)) // 지정된 몬스터 타입과 같다면
             {
                 currentCount++;                    // 진행도 증가
                 if (currentCount >= RequiredCount) // 진행도를 만족하면, 완료 처리.
-=======
-            if (monsterType.Equals(MonsterType, StringComparison.OrdinalIgnoreCase))
-            {
-                currentCount++;
-                if (currentCount >= RequiredCount)
->>>>>>> Stashed changes
                     Complete();
             }
         }
@@ -192,51 +177,36 @@ namespace TextRPGTeam.QuestSystem
             if (q != null)
                 q.Accept();
         }
-<<<<<<< Updated upstream
         
         // id로 퀘스트를 포기 처리
-=======
->>>>>>> Stashed changes
         public void AbandonQuest(int questId)
         {
             var q = quests.FirstOrDefault(x => x.Id == questId);
             q?.Abandon();
         }
 
-<<<<<<< Updated upstream
         // 레벨업 퀘스트 체크용 메서드
-=======
->>>>>>> Stashed changes
         public void OnLevelUp(int newLevel)
         {
             foreach (var q in quests)
                 q.OnLevelUp(newLevel);
         }
-<<<<<<< Updated upstream
 
         // 장비 장착 퀘스트 체크용 메서드
-=======
->>>>>>> Stashed changes
         public void OnEquipChanged(Item item, bool isEquipped)
         {
             foreach (var q in quests)
                 q.OnEquipChanged(item, isEquipped);
         }
-<<<<<<< Updated upstream
 
         // 몬스터 처치 퀘스트 체크용 메서드
-=======
->>>>>>> Stashed changes
         public void OnMonsterKilled(string monsterType)
         {
             foreach (var q in quests)
                 q.OnMonsterKilled(monsterType);
         }
-<<<<<<< Updated upstream
 
         // 던전 클리어 체크용 메서드
-=======
->>>>>>> Stashed changes
         public void OnDungeonCleared(string dungeonName)
         {
             foreach (var q in quests)
