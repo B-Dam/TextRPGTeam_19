@@ -212,7 +212,7 @@ namespace TextRPGTeam
                     case 1:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            Status(hero, hero);//상태보기
+                            Status(hero);//상태보기
                             break;
                         }
                     case 2:
@@ -224,7 +224,7 @@ namespace TextRPGTeam
                     case 3:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            Store(shop, inventory, hero);// 상점가기
+                            Store(shop, inventory, hero,potionInventory);// 상점가기
                             break;
                         }
                     case 4:
@@ -247,7 +247,7 @@ namespace TextRPGTeam
                 }
             }
         }
-        public static void Status(Character c, Character hero)
+        public static void Status(Character c)
         {
             Console.Clear();
 
@@ -261,7 +261,7 @@ namespace TextRPGTeam
                 Console.WriteLine("체 력 : " + c.Health + " / " + c.MaxHealth + "\n");
                 Console.WriteLine("마 력 : " + c.Mana + " / " + c.MaxMana + "\n");
                 Console.WriteLine("Gold : " + c.Cash + " G\n");
-                Console.WriteLine($"현재 경험치: {hero.Exp} / {hero.ExpToLevelUp}");
+                Console.WriteLine($"현재 경험치: {c.Exp} / {c.ExpToLevelUp}");
                 Console.Write("\n\n0. 나가기\n\n원하시는 행동을 입력해주세요.\n>>");
                 if (Console.ReadLine() != "0")
                 {
@@ -367,7 +367,7 @@ namespace TextRPGTeam
                     Console.Write(i + " ");
                 if (item.Equip && equip)
                     Console.Write("[E]");
-                Console.Write(item.Name + "\t| ");
+                Console.Write($"{PadRightForConsole(item.Name,16)}| ");
                 if (item.Att != 0)
                     Console.Write("공격력 +" + item.Att + " | ");
                 if (item.Def != 0)
@@ -377,7 +377,7 @@ namespace TextRPGTeam
         }
         // 아이템 리스트 보기
 
-        public static void ShowItem(List<Item> items, List<Item> inven, bool num = false)
+        public static int ShowItem(List<Item> items, List<Item> inven, bool num = false)
         {
             int i = 0;
             foreach (Item item in items)
@@ -386,7 +386,7 @@ namespace TextRPGTeam
                 Console.Write("- ");
                 if (num)
                     Console.Write(i + " ");
-                Console.Write(item.Name + "\t| ");
+                Console.Write($"{PadRightForConsole(item.Name,16)}| ");
                 if (item.Att != 0)
                     Console.Write("공격력 +" + item.Att + " | ");
                 if (item.Def != 0)
@@ -394,10 +394,11 @@ namespace TextRPGTeam
                 Console.Write(item.Description + " | ");
                 Console.WriteLine(inven.Contains(item) ? "구매완료" : (item.Value + "G"));
             }
+            return i;
         }
         // 아이템 리스트 보기(구매 여부 추가)
 
-        public static void ShowItem(List<Item> items, bool num, bool equip, float sale)
+        public static int ShowItem(List<Item> items, bool num, bool equip, float sale)
         {
             int i = 0;
 
@@ -409,7 +410,7 @@ namespace TextRPGTeam
                     Console.Write(i + " ");
                 if (item.Equip && equip)
                     Console.Write("[E]");
-                Console.Write(item.Name + "\t| ");
+                Console.Write($"{PadRightForConsole(item.Name,16)}| ");
                 if (item.Att != 0)
                     Console.Write("공격력 +" + item.Att + " | ");
                 if (item.Def != 0)
@@ -417,10 +418,10 @@ namespace TextRPGTeam
                 Console.Write(item.Description + " | ");
                 Console.WriteLine((int)((float)item.Value * sale) + "G");
             }
+            return i;
         }
         // 아이템 리스트 보기(판매용)
-
-        public static void Store(List<Item> Shop, List<Item> Inventory, Character hero)
+        public static void Store(List<Item> Shop, List<Item> Inventory, Character hero, PotionInven[] potion)
         {
             int choice;
 
@@ -431,6 +432,10 @@ namespace TextRPGTeam
                 Console.WriteLine("\n상점\n\n필요한 아이템을 얻을 수 있는 상점입니다.\n\n");
                 Console.WriteLine("[보유 골드]\n\n" + hero.Cash + " G\n\n\n[아이템 목록]\n");
                 ShowItem(Shop, Inventory);
+                foreach (PotionInven pot in potion)
+                {
+                    Console.WriteLine($"- {PadRightForConsole(pot.potion.Name,16)}| {pot.potion.Description} | {pot.potion.Value}");
+                }
                 Console.WriteLine("\n1. 아이템 구매\n\n2. 아이템 판매\n\n0. 나가기");
                 Console.Write("\n원하시는 행동을 입력해주세요\n>>");
 
@@ -440,8 +445,8 @@ namespace TextRPGTeam
                 switch (choice)
                 {
                     case 0: Console.Clear(); break;
-                    case 1: BuyItem(Shop, Inventory, ref hero.Cash); break;
-                    case 2: SellItem(Inventory, hero); break;
+                    case 1: BuyItem(Shop, Inventory, ref hero.Cash,potion); break;
+                    case 2: SellItem(Inventory, hero,potion); break;
                     default:
                         Console.Clear();
                         Console.WriteLine("잘못된 입력입니다. 다시 선택해 주세요.\n"); break;
@@ -451,18 +456,23 @@ namespace TextRPGTeam
         }
         // 상점
 
-        public static void BuyItem(List<Item> Shop, List<Item> Inventory, ref int money)
+        public static void BuyItem(List<Item> Shop, List<Item> Inventory, ref int money, PotionInven[] potion)
         {
             int choice;
-
+            int maxNumber;
             Console.Clear();
 
             while (true)
             {
                 Console.WriteLine("\n상점 - 아이템 구매\n\n필요한 아이템을 얻을 수 있는 상점입니다.\n\n");
                 Console.WriteLine("[보유 골드]\n\n" + money + " G\n\n\n[아이템 목록]\n");
-                ShowItem(Shop, Inventory, true);
-                Console.WriteLine("\n1. 아이템 구매\n\n0. 나가기");
+                maxNumber = ShowItem(Shop, Inventory, true);
+                foreach (PotionInven pot in potion)
+                {
+                    maxNumber++;
+                    Console.WriteLine($"- {maxNumber} {PadRightForConsole(pot.potion.Name, 16)}| {pot.potion.Description} | {pot.potion.Value}G ({pot.Count}개 보유)");
+                }
+                Console.WriteLine("\n\n0. 나가기");
                 Console.Write("\n원하시는 행동을 입력해주세요\n>>");
 
                 try { choice = int.Parse(Console.ReadLine()); }
@@ -492,6 +502,20 @@ namespace TextRPGTeam
                         Console.Clear();
                     }
                 }
+                else if (choice > Shop.Count && choice <= maxNumber)
+                {
+                    if (potion[choice - Shop.Count - 1].potion.Value > money)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("\nGold가 부족합니다.\n");
+                    }
+                    else
+                    {
+                        potion[choice - Shop.Count - 1].Count++;
+                        money -= potion[choice - Shop.Count - 1].potion.Value;
+                        Console.Clear();
+                    }
+                }
                 else
                 {
                     Console.Clear();
@@ -501,17 +525,25 @@ namespace TextRPGTeam
         }
         // 아이템 구매
 
-        public static void SellItem(List<Item> Inventory, Character hero)
+        public static void SellItem(List<Item> Inventory, Character hero, PotionInven[] potion)
         {
             int choice;
-
+            int maxNumber;
             Console.Clear();
 
             while (true)
             {
                 Console.WriteLine("\n상점 - 아이템 판매\n\n필요한 아이템을 얻을 수 있는 상점입니다.\n\n");
                 Console.WriteLine("[보유 골드]\n\n" + hero.Cash + " G\n\n\n[아이템 목록]\n");
-                ShowItem(Inventory, true, true, Constants.sale);
+                maxNumber=ShowItem(Inventory, true, true, Constants.sale);
+                foreach (PotionInven pot in potion)
+                {
+                    if (pot.Count > 0)
+                    {
+                        maxNumber++;
+                        Console.WriteLine($"- {maxNumber} {PadRightForConsole(pot.potion.Name, 16)}| {pot.potion.Description} | {pot.potion.Value * Constants.sale}G ({pot.Count}개 보유)");
+                    }
+                }
                 Console.WriteLine("\n\n0. 나가기");
                 Console.Write("\n원하시는 행동을 입력해주세요\n>>");
 
@@ -525,7 +557,7 @@ namespace TextRPGTeam
                 }
                 else if (choice > 0 && choice <= Inventory.Count)
                 {
-                    hero.Cash += (int)((float)Inventory[choice - 1].Value * Constants.sale);
+                    hero.Cash += (int)(Inventory[choice - 1].Value * Constants.sale);
                     if (Inventory[choice - 1].Equip)
                     {
                         hero.EqAtt -= Inventory[choice - 1].Att;
@@ -533,6 +565,22 @@ namespace TextRPGTeam
                     }
                     Inventory.Remove(Inventory[choice - 1]);
                     Console.Clear();
+                }
+                else if (choice > Inventory.Count && choice <= maxNumber)
+                {
+                    int c = choice - Inventory.Count - 1;
+                    foreach (PotionInven pot in potion)
+                    {   if(pot.Count <= 0) { continue; }
+                        else if (c>0) { c--; continue; }
+                        else
+                        {
+                            hero.Cash += (int)(pot.potion.Value * Constants.sale);
+                            pot.Count--;
+                            Console.Clear();
+                            break;
+                        }
+                    }
+
                 }
                 else
                 {
