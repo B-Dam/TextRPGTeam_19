@@ -187,10 +187,10 @@ namespace TextRPGTeam
 
             questMgr.AddQuest(new KillQuest(
                 id: 2,
-                title: "슬라임 10마리 처치",
-                description: "던전에서 슬라임을 10마리 처치하세요.",
-                monsterType: "Slime",
-                requiredCount: 10,
+                title: "미니언 2마리 처치",
+                description: "던전에서 미니언을 2마리 처치하세요.",
+                monsterName: "미니언",
+                requiredCount: 2,
                 reward: new Item("아이템 이름", "아이템 설명.", 0, 0, 0, "아이템 타입")
             ));
 
@@ -763,18 +763,21 @@ namespace TextRPGTeam
                     i++;
                 }
                 if (allDead) { Console.Clear(); BattleVictory(enemy, hero, questMgr); Console.Clear(); break; }
+
                 Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/{hero.MaxHealth}\n\nMP {hero.Mana}/{hero.MaxMana}\n\n");
                 Console.Write("\n1. 공격\n\n원하시는 행동을 입력해주세요.\n>>");
+
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
+
                 switch (choice)
                 {
-                    case 1: BattleAttack(enemy, hero, enemyHealth); break;
+                    case 1: BattleAttack(enemy, hero, enemyHealth, questMgr); break;
                     default: Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break;
                 }
             }
         }
-        public static void BattleAttack(List<Monster> enemy, Character hero, int[] enemyHealth) //플레이어 공격시 메소드
+        public static void BattleAttack(List<Monster> enemy, Character hero, int[] enemyHealth, QuestManager questMgr) //플레이어 공격시 메소드
         {
             Random random = new Random();
             int choice;
@@ -800,15 +803,20 @@ namespace TextRPGTeam
                         Console.ResetColor();
                     }
                 }
+
                 Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/{hero.MaxHealth}\n\nMP {hero.Mana}/{hero.MaxMana}\n\n");
                 Console.Write("\n0. 취소\n\n대상을 선택해주세요.\n>>");
+
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
                 if(choice == 0) { Console.Clear(); break; }
                 else if (choice > 0 && choice <= count && enemyHealth[choice - 1] > 0)
                 {
                     Console.Clear();
-                    foe = enemy[choice - 1];
+
+                    int targetIndex = choice - 1;
+                    foe = enemy[targetIndex];
+
                     bool isEvaded = random.Next(0, 100) < foe.EvadeRate;
                     bool isCritical = random.Next(0, 100) < hero.CritRate;
                     damage = (int)(hero.Att + hero.EqAtt) + random.Next(-1, 2);//공격력과 장비공격력을 더하고 오차 +-1의 데미지
@@ -821,7 +829,7 @@ namespace TextRPGTeam
                         Console.WriteLine($"{foe.Name} 을(를) 공격했지만 아무일도 일어나지 않았습니다.");
                         Console.Write("\n\n\n아무버튼이나 누르세요..");
                         Console.ReadLine();
-                        EnemyAttack(enemy, hero, enemyHealth);
+                        EnemyAttack(enemy, hero, enemyHealth, questMgr);
                         break;
                     }
                     else
@@ -833,7 +841,7 @@ namespace TextRPGTeam
                             critText = " - 치명타 공격!!";
                         }
 
-                        enemyHealth[choice - 1] -= damage;
+                        enemyHealth[targetIndex] -= damage;
                         Console.ForegroundColor = ConsoleColor.DarkYellow;
                         Console.Write("\nBattle!!\n\n\n");
                         Console.ResetColor();
@@ -841,20 +849,24 @@ namespace TextRPGTeam
                         Console.Write($"Lv.{foe.Level} {foe.Name} 을(를) 맞췄습니다.");
                         Console.Write($"[데미지 : {damage}]{critText}\n\n\n");
                         Console.Write($"Lv.{foe.Level} {foe.Name}\n\n");
-                        if (enemyHealth[choice - 1] > 0)
-                            Console.Write($"HP {enemyHealth[choice - 1] + damage} -> {enemyHealth[choice - 1]}");
+                        if (enemyHealth[targetIndex] > 0)
+                            Console.Write($"HP {enemyHealth[targetIndex] + damage} -> {enemyHealth[targetIndex]}");
                         else
-                            Console.Write($"HP {enemyHealth[choice - 1] + damage} -> Dead");
+                        {
+                            Console.Write($"HP {enemyHealth[targetIndex] + damage} -> Dead");
+                            questMgr.OnMonsterKilled(foe.Name);
+                        }
                         Console.Write("\n\n\n아무버튼이나 누르세요..");
                         Console.ReadLine();
-                        EnemyAttack(enemy, hero, enemyHealth);
+
+                        EnemyAttack(enemy, hero, enemyHealth, questMgr);
                         break;
                     }
                 }
                 else { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); }
             }
         }
-        public static void EnemyAttack(List<Monster> enemy, Character hero, int[] enemyHealth)//적군 공격시 메소드
+        public static void EnemyAttack(List<Monster> enemy, Character hero, int[] enemyHealth, QuestManager questMgr)//적군 공격시 메소드
         {
             Random random = new Random();
             int damage;

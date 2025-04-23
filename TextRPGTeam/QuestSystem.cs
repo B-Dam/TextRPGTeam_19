@@ -112,23 +112,23 @@ namespace TextRPGTeam.QuestSystem
     // 몬스터 처치 퀘스트
     public class KillQuest : Quest
     {
-        public string MonsterType { get; }
+        public string MonsterName { get; }
         public int RequiredCount { get; }
         private int currentCount;
         public int Progress => currentCount;
 
         public KillQuest(int id, string title, string description,
-                         string monsterType, int requiredCount, Item reward)
+                         string monsterName, int requiredCount, Item reward)
             : base(id, title, description, reward)
         {
-            MonsterType = monsterType;
+            MonsterName = monsterName;
             RequiredCount = requiredCount;
         }
 
-        public override void OnMonsterKilled(string monsterType)
+        public override void OnMonsterKilled(string monsterName)
         {
             if (Status != QuestStatus.InProgress) return;
-            if (monsterType.Equals(MonsterType, StringComparison.OrdinalIgnoreCase)) // 지정된 몬스터 타입과 같다면
+            if (monsterName.Equals(MonsterName, StringComparison.OrdinalIgnoreCase)) // 지정된 몬스터 이름과 같다면
             {
                 currentCount++;                    // 진행도 증가
                 if (currentCount >= RequiredCount) // 진행도를 만족하면, 완료 처리.
@@ -200,10 +200,10 @@ namespace TextRPGTeam.QuestSystem
         }
 
         // 몬스터 처치 퀘스트 체크용 메서드
-        public void OnMonsterKilled(string monsterType)
+        public void OnMonsterKilled(string monsterName)
         {
             foreach (var q in quests)
-                q.OnMonsterKilled(monsterType);
+                q.OnMonsterKilled(monsterName);
         }
 
         // 던전 클리어 체크용 메서드
