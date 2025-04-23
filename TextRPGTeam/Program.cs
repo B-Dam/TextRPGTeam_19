@@ -690,14 +690,13 @@
                             if (isCritical) //플레이어 치명타
                             {
                                 damage = (int)(damage * hero.CritMultiplier);
-                                Console.WriteLine("치명타 공격!!");
+                                Console.WriteLine($"{foe.Name} 을(를) 맞췄습니다. [데미지 : {damage}] - 치명타 공격!!");
                             }
 
-                            enemyHealth[choice - 1] -= damage;
-                            Console.WriteLine($"{foe.Name} 을(를) 맞췄습니다. [데미지 : {damage}]");
+
                         }
 
-
+                        enemyHealth[choice - 1] -= damage;
                         Console.Write($"\nBattle!!\n\n\n{hero.Name}의 공격!\n\n");
                         Console.Write($"Lv.{foe.Level} {foe.Name} 을(를) 맞췄습니다.");
                         Console.Write($"[데미지 : {damage}]\n\n\n");
