@@ -35,13 +35,15 @@
             public int Att;
             public int Def;
             public int Health;
-            public Class(string n, string d, int a, int de, int h = 100) : this()
+            public int Mana;
+            public Class(string n, string d, int a, int de, int h = 100, int m = 50) : this()
             {
                 Name = n;
                 Description = d;
                 Att = a;
                 Def = de;
                 Health = h;
+                Mana = m;
             }
         }
         // 직업
@@ -56,6 +58,7 @@
             public float Def;
             public float EqDef = 0; // 장비 방어력
             public int Health;
+            public int Mana;
             public int Cash = 1500;
         }
         // 플레이어
@@ -117,7 +120,8 @@
                 Class[] job = // 직업
                     [
                          new Class("전사", "전사입니다.", 10, 5),
-                         new Class("도적", "도적입니다.", 15, 3)
+                         new Class("도적", "도적입니다.", 15, 3),
+                         new Class("마법사", "마법사입니다.", 8, 6)
                     ];
 
                 List<Item> shop = new List<Item> // 상점 아이템
@@ -179,6 +183,7 @@
                         hero.Att = job[choice - 1].Att;
                         hero.Def = job[choice - 1].Def;
                         hero.Health = job[choice - 1].Health;
+                        hero.Mana = job[choice - 1].Mana;
                         break;
                     }
                     else
@@ -250,6 +255,7 @@
                     Console.WriteLine("공격력 : " + (c.Att + c.EqAtt) + (c.EqAtt == 0 ? "" : " (" + (c.EqAtt > 0 ? "+" : "") + c.EqAtt + ")") + "\n");
                     Console.WriteLine("방어력 : " + (c.Def + c.EqDef) + (c.EqDef == 0 ? "" : " (" + (c.EqDef > 0 ? "+" : "") + c.EqDef + ")") + "\n");
                     Console.WriteLine("체 력 : " + c.Health + "\n");
+                    Console.WriteLine("마 력 : " + c.Mana + "\n");
                     Console.WriteLine("Gold : " + c.Cash + " G\n");
                     Console.Write("\n\n0. 나가기\n\n원하시는 행동을 입력해주세요.\n>>");
                     if (Console.ReadLine() != "0")
@@ -558,7 +564,7 @@
                         if (hero.Health == 100)
                         {
                             Console.Clear();
-                            Console.WriteLine("\n이미 체력이 가득 차 있습니다.\n");
+                            Console.WriteLine("\n건강한 상태라 회복할 필요가 없습니다.\n");
                         }
                         else if (hero.Cash < 500)
                         {
@@ -568,9 +574,10 @@
                         else
                         {
                             hero.Health = 100;
+                            hero.Mana = 50;
                             hero.Cash -= 500;
                             Console.Clear();
-                            Console.WriteLine("\n체력이 회복됩니다...\n");
+                            Console.WriteLine("\n휴식을 완료했습니다...\n");
                         }
                     }
                     else
