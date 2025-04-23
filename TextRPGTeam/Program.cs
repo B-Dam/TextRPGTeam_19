@@ -781,9 +781,9 @@ namespace TextRPGTeam
             int count;
             Monster foe;
             int damage;
+            Console.Clear();
             while (true)
             {
-                Console.Clear();
                 count = 0;
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.WriteLine("\nBattle!!\n\n");
@@ -804,7 +804,8 @@ namespace TextRPGTeam
                 Console.Write("\n0. 취소\n\n대상을 선택해주세요.\n>>");
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
-                if (choice > 0 && choice <= count && enemy[choice - 1].Hp > 0)
+                if(choice == 0) { Console.Clear(); break; }
+                else if (choice > 0 && choice <= count && enemyHealth[choice - 1] > 0)
                 {
                     Console.Clear();
                     foe = enemy[choice - 1];
@@ -850,7 +851,7 @@ namespace TextRPGTeam
                         break;
                     }
                 }
-                else { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break; }
+                else { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); }
             }
         }
         public static void EnemyAttack(List<Monster> enemy, Character hero, int[] enemyHealth)//적군 공격시 메소드
