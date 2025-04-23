@@ -454,7 +454,17 @@ namespace TextRPGTeam
                 if (item.Def != 0)
                     Console.Write("방어력 +" + item.Def + " | ");
                 Console.Write(item.Description + " | ");
-                Console.WriteLine(inven.Contains(item) ? "구매완료" : (item.Value + "G"));
+                if (inven.Contains(item))
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("구매완료");
+                }
+                else
+                {
+                    Console.WriteLine(item.Value + "G");
+                }
+
+                Console.ResetColor();
             }
             return i;
         }
