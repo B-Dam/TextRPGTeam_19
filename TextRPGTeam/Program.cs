@@ -60,6 +60,34 @@
         }
         // 플레이어
 
+        struct Potion()
+        {
+            public string Name;
+            public string Description;
+            public int Heal;
+            public int Mana;
+            public int Value;
+            public Potion(string n, string d, int h, int m, int v) : this()
+            {
+                Name = n;
+                Description = d;
+                Heal = h;
+                Mana = m;
+                Value = v;
+            }
+        }
+
+        class PotionInven()
+        {
+            public Potion potion;
+            public int Count;
+            public PotionInven(Potion P,int c):this()
+            { 
+                potion = P;
+                Count = c;
+            }
+        }
+
         struct Monster()
         {
             public int Level;
@@ -107,6 +135,12 @@
                 new Item("수류연타", "물의 태세가 극에 달하여 물 흐르듯 3회의 연격을 날린다.", 5, 20, 1500,"weapon"),
                 new Item("암흑강타", "악의 태세가 극에 달하여 강렬한 일격을 날린다.", 25, 5, 1500,"weapon")
                 };
+
+                Potion redPotion = new Potion("빨강포션", "체력 30 회복", 30, 0, 100);
+                Potion bluePotion = new Potion("파랑포션", "마나 50 회복", 0, 50, 70);
+                Potion highPotion = new Potion("엘릭서", "체력&마나 100 회복", 100, 100, 1000);
+
+                PotionInven[] potionInventory = { new PotionInven(redPotion, 3), new PotionInven(bluePotion, 0), new PotionInven(highPotion, 0) };
 
                 List<Monster> mob = new List<Monster> {
                     new Monster(2,"미니언",15,5),
@@ -506,8 +540,8 @@
 
                 while (true)
                 {
-                    Console.Write("\n휴식하기\n\n500 G 를 내면 체력을 회복할 수 있습니다. ");
-                    Console.WriteLine("(보유 골드 : " + hero.Cash + " G | 현재체력 : " + hero.Health + ")\n");
+                    Console.Write("\n회복\n\n포션을 사용하여 회복할 수 있습니다. ");
+                    Console.WriteLine("(현재체력 : " + hero.Health + ")\n");
                     Console.WriteLine("\n1. 휴식하기\n\n0. 나가기");
                     Console.Write("\n원하시는 행동을 입력해주세요\n>>");
 
