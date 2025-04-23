@@ -258,8 +258,8 @@
                     Console.WriteLine(c.Name + " ( " + c.Class + " )\n");
                     Console.WriteLine("공격력 : " + (c.Att + c.EqAtt) + (c.EqAtt == 0 ? "" : " (" + (c.EqAtt > 0 ? "+" : "") + c.EqAtt + ")") + "\n");
                     Console.WriteLine("방어력 : " + (c.Def + c.EqDef) + (c.EqDef == 0 ? "" : " (" + (c.EqDef > 0 ? "+" : "") + c.EqDef + ")") + "\n");
-                    Console.WriteLine("체 력 : " + c.Health + "\n");
-                    Console.WriteLine("마 력 : " + c.Mana + "\n");
+                    Console.WriteLine("체 력 : " + c.Health + " / " + c.MaxHealth + "\n");
+                    Console.WriteLine("마 력 : " + c.Mana + " / " + c.MaxMana + "\n");
                     Console.WriteLine("Gold : " + c.Cash + " G\n");
                     Console.Write("\n\n0. 나가기\n\n원하시는 행동을 입력해주세요.\n>>");
                     if (Console.ReadLine() != "0")
@@ -551,8 +551,8 @@
                 while (true)
                 {
                     count = 0;
-                    Console.Write("\n회복\n\n포션을 사용하여 회복할 수 있습니다. ");
-                    Console.WriteLine($"(현재체력 : {hero.Health} / 현재마나 : {hero.Mana})\n");
+                    Console.Write("\n회복\n\n포션을 사용하여 회복할 수 있습니다. \n\n");
+                    Console.WriteLine($"(현재체력 : {hero.Health}/{hero.MaxHealth} / 현재마나 : {hero.Mana}/{hero.MaxMana})\n\n");
                     foreach(PotionInven potion in potionInventory){
                         count++;
                         Console.WriteLine($"{count}. {potion.potion.Name} : {potion.potion.Description} ({potion.Count}개)\n");
@@ -639,7 +639,7 @@
                         i++;
                     }
                     if (allDead) { Console.Clear(); BattleVictory(enemy,hero); Console.Clear(); break;}
-                    Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/100\n\n");
+                    Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/{hero.MaxHealth}\n\nMP {hero.Mana}/{hero.MaxMana}\n\n");
                     Console.Write("\n1. 공격\n\n원하시는 행동을 입력해주세요.\n>>");
                     try { choice = int.Parse(Console.ReadLine()); }
                     catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
@@ -674,7 +674,7 @@
                             Console.ResetColor();
                         }
                     }
-                    Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/100\n\n");
+                    Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/{hero.MaxHealth}\n\nMP {hero.Mana}/{hero.MaxMana}\n\n");
                     Console.Write("\n0. 취소\n\n대상을 선택해주세요.\n>>");
                     try { choice = int.Parse(Console.ReadLine()); }
                     catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
