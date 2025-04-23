@@ -1,11 +1,9 @@
-﻿namespace TextRPGTeam
-{
-    using System;
-    using System.Threading.Tasks.Dataflow;
+﻿using System;
+using System.Threading.Tasks.Dataflow;
 
     namespace TextRPGTeam
     {
-        class Item()
+        public class Item()
         {
             public string Name;
             public string Description;
@@ -48,7 +46,7 @@
         }
         // 직업
 
-        class Character()
+        public class Character()
         {
             public int Level = 1;
             public string Name;
@@ -762,4 +760,3 @@
             }
         }
     }
-}
