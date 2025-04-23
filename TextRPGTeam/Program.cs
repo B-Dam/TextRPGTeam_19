@@ -1,9 +1,11 @@
-﻿using System;
+﻿using global::TextRPGTeam.QuestSystem;
+using System;
 using System.Threading.Tasks.Dataflow;
+using TextRPGTeam.QuestSystem; // using문 추가
 
 namespace TextRPGTeam
 {
-    public class Item()
+    public class Item() // 아이템 클래스 퍼블릭으로 변경!
     {
         public string Name;
         public string Description;
@@ -46,7 +48,7 @@ namespace TextRPGTeam
     }
     // 직업
 
-    public class Character()
+    public class Character() // 캐릭터 클래스 퍼블릭으로 변경!
     {
         public int Level = 1;
         public string Name;
@@ -154,6 +156,34 @@ namespace TextRPGTeam
                     new Monster(5,"대포미니언",25,8)
                 };
 
+            var questMgr = new QuestManager(); // 퀘스트 매니저 추가
+
+            // 퀘스트 추가는 여기서
+            questMgr.AddQuest(new EquipQuest(
+             id: 1,
+             title: "무기 장착",
+             description: "아무 무기나 장착하세요.",
+             requiredType: "weapon",
+             reward: new Item("보상 아이템 이름", "보상 아이템 설명.", 0, 0, 100, "아이템 타입")
+            ));
+
+            questMgr.AddQuest(new KillQuest(
+                id: 2,
+                title: "슬라임 10마리 처치",
+                description: "던전에서 슬라임을 10마리 처치하세요.",
+                monsterType: "Slime",
+                requiredCount: 10,
+                reward: new Item("아이템 이름", "아이템 설명.", 0, 0, 0, "아이템 타입")
+            ));
+
+            questMgr.AddQuest(new LevelQuest(
+                id: 3,
+                title: "레벨 업! 2 레벨!",
+                description: "2레벨을 달성해보세요!",
+                targetLevel: 2,
+                reward: new Item("짱 좋은 아이템", "짱 좋은 아이템이에요!", 0, 0, 10000, "아이템 타입")
+            ));
+
             int choice;
             int count = 0;
 
@@ -218,7 +248,7 @@ namespace TextRPGTeam
                     case 2:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            Inven(inventory, hero);//인벤보기
+                            Inven(inventory, hero, questMgr);//인벤보기
                             break;
                         }
                     case 3:
@@ -230,13 +260,19 @@ namespace TextRPGTeam
                     case 4:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            Battle(mob, hero);
+                            Battle(mob, hero, questMgr);
                             break;
                         }
                     case 5:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
                             Rest(hero, potionInventory);//회복 하기
+                            break;
+                        }
+                    case 6:
+                        {
+                            Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
+                            ShowQuest(questMgr, inventory);
                             break;
                         }
                     default:
@@ -277,7 +313,7 @@ namespace TextRPGTeam
         }
         // 캐릭터 정보 보기
 
-        public static void Inven(List<Item> Inventory, Character hero)
+        public static void Inven(List<Item> Inventory, Character hero, QuestManager questMgr)
         {
             int choice;
 
@@ -292,7 +328,7 @@ namespace TextRPGTeam
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
                 switch (choice)
                 {
-                    case 1: Console.WriteLine("장착관리를 선택하셨습니다|\n"); Equip(Inventory, hero); break;
+                    case 1: Console.WriteLine("장착관리를 선택하셨습니다|\n"); Equip(Inventory, hero, questMgr); break;
                     case 2: Console.WriteLine("나가기를 선택하셨습니다|\n"); break;
                     default: Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break;
                 }
@@ -301,7 +337,7 @@ namespace TextRPGTeam
         }
         //인벤토리 보기
 
-        public static void Equip(List<Item> items, Character hero)
+        public static void Equip(List<Item> items, Character hero, QuestManager questMgr)
         {
             int choice;
             string equipType;
@@ -331,6 +367,7 @@ namespace TextRPGTeam
                         items[choice - 1].Equip = false;
                         hero.EqAtt -= items[choice - 1].Att;
                         hero.EqDef -= items[choice - 1].Def;
+                        questMgr.OnEquipChanged(items[choice - 1], false);
                     }
                     else
                     {
@@ -341,11 +378,13 @@ namespace TextRPGTeam
                                 items[i].Equip = false;
                                 hero.EqAtt -= items[i].Att;
                                 hero.EqDef -= items[i].Def;
+                                questMgr.OnEquipChanged(items[choice - 1], false);
                             }
                         }
                         items[choice - 1].Equip = true;
                         hero.EqAtt += items[choice - 1].Att;
                         hero.EqDef += items[choice - 1].Def;
+                        questMgr.OnEquipChanged(items[choice - 1], true);
                     }
                     Console.Clear();
                 }
@@ -645,7 +684,7 @@ namespace TextRPGTeam
         }
         //휴식
 
-        public static void Battle(List<Monster> mob, Character hero)//배틀 메소드
+        public static void Battle(List<Monster> mob, Character hero, QuestManager questMgr)//배틀 메소드
         {
             bool allDead;
             Random random = new Random();
@@ -688,7 +727,7 @@ namespace TextRPGTeam
                     }
                     i++;
                 }
-                if (allDead) { Console.Clear(); BattleVictory(enemy, hero); Console.Clear(); break; }
+                if (allDead) { Console.Clear(); BattleVictory(enemy, hero, questMgr); Console.Clear(); break; }
                 Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/{hero.MaxHealth}\n\nMP {hero.Mana}/{hero.MaxMana}\n\n");
                 Console.Write("\n1. 공격\n\n원하시는 행동을 입력해주세요.\n>>");
                 try { choice = int.Parse(Console.ReadLine()); }
@@ -779,7 +818,7 @@ namespace TextRPGTeam
                 }
             }
         }
-        public static void BattleVictory(List<Monster> enemy, Character hero) //배틀 승리시 메소드
+        public static void BattleVictory(List<Monster> enemy, Character hero, QuestManager questMgr) //배틀 승리시 메소드
         {
             Console.Clear();
             Console.WriteLine("\nBattle - Result\n\n");
@@ -790,8 +829,8 @@ namespace TextRPGTeam
 
             Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
             Console.WriteLine($"HP {hero.Health}/100\n\n");
-            Console.WriteLine($"경험치를 흭득하셨습니다:{hero.ExpToLevelUp}"); //승리시 경험치 흭득 
-            Exp(hero, totalExp);
+            Console.WriteLine($"경험치를 흭득하셨습니다:{totalExp}"); //승리시 경험치 흭득 
+            Exp(hero, totalExp, questMgr);
             Console.Write("아무버튼이나 누르세요..");
             Console.ReadLine();
         }
@@ -815,7 +854,7 @@ namespace TextRPGTeam
             int padding = Math.Max(0, totalWidth - visualLength);
             return input + new string(' ', padding);
         }
-        public static void Exp(Character hero, int exp)
+        public static void Exp(Character hero, int exp, QuestManager questMgr)
         {
 
             int Level = 1;
@@ -831,6 +870,7 @@ namespace TextRPGTeam
             {
                 hero.Exp -= hero.ExpToLevelUp; //레벨업하면 경험치량 초기화
                 hero.Level++;
+                questMgr.OnLevelUp(hero.Level); // 레벨 퀘스트 확인용
                 hero.ExpToLevelUp += 30; //레벨업할수록 필요한 경험치 30씩 증가
 
                 //레벨업시
@@ -839,9 +879,196 @@ namespace TextRPGTeam
                 hero.Health = 100; //체력 100회복
                 hero.Cash += 500; //캐쉬 500원
 
-                Console.WriteLine($"\n레벨업!:{hero.Level}이 되었습니다.");
-                Console.WriteLine("공격력,방어력 증가 Cash 500+");
+                Console.WriteLine($"\n레벨업! {hero.Level}레벨이 되었습니다.");
+                Console.WriteLine("공격력이 1 올랐습니다!\n방어력이 1 올랐습니다!\n500 G를 획득했습니다!");
             }
         }
+
+        // 퀘스트 관련 메서드 --------------------------------------------------------------------
+        static void ShowQuest(QuestManager qm, List<Item> inventory)
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("< 퀘스트 메뉴 >\n");
+                Console.WriteLine("1. 진행 중 퀘스트");
+                Console.WriteLine("2. 수락 가능한 퀘스트");
+                Console.WriteLine("\n0. 뒤로");
+                Console.Write("\n원하시는 행동을 입력해주세요!\n>> ");
+
+                var choice = Console.ReadLine();
+                if (choice == "0")
+                {
+                    Console.Clear();
+                    return;
+                }
+
+                if (choice == "1")
+                    ShowInProgress(qm, inventory);
+                else if (choice == "2")
+                    ShowAvailable(qm, inventory);
+                else
+                {
+                    Console.WriteLine("정확히 입력해주세요.\n계속하려면 아무 키나 누르세요.");
+                    Console.ReadKey();
+                }
+            }
+        }
+
+        static void ShowInProgress(QuestManager qm, List<Item> inventory)
+        {
+            var accepted = qm.Quests.Where(q => q.IsAccepted).ToList();
+
+            if (!accepted.Any())
+            {
+                Console.WriteLine("수락된 퀘스트가 없습니다.\n계속하려면 아무 키나 누르세요.");
+                Console.ReadKey();
+                return;
+            }
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("< 진행 중 퀘스트 >\n");
+                Console.WriteLine("이곳에서 수락한 퀘스트의 진행도와 상세정보를 확인할 수 있습니다.\n");
+                for (int i = 0; i < accepted.Count; i++)
+                    Console.WriteLine($"{i + 1}. {accepted[i].Title}");
+                Console.Write("\n상세 정보를 확인할 퀘스트의 번호를 입력하세요. (0: 돌아가기)\n>> ");
+
+                var input = Console.ReadLine();
+                if (input == "0") return;
+
+                if (!int.TryParse(input, out int sel) || sel < 1 || sel > accepted.Count)
+                {
+                    Console.WriteLine("정확히 입력해주세요.\n계속하려면 아무 키나 누르세요.");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                var quest = accepted[sel - 1];
+                Console.Clear();
+                var statusKor = quest.Status switch
+                {
+                    QuestStatus.InProgress => "진행중",
+                    QuestStatus.Completed => "완료",
+                    QuestStatus.Rewarded => "보상 받음",
+                };
+
+                Console.WriteLine("< 퀘스트 상세 >\n");
+                Console.WriteLine("퀘스트를 포기하면 진행도가 초기화됩니다! 주의하세요!\n");
+                Console.WriteLine($"제목: {quest.Title}\n");
+                Console.WriteLine($"설명: {quest.Description}\n");
+                Console.WriteLine($"상태: {statusKor}");
+                if (quest is KillQuest kq)
+                    Console.WriteLine($"\n진행도: {kq.Progress}/{kq.RequiredCount}");
+
+                if (quest.Status == QuestStatus.Completed)
+                {
+                    Console.WriteLine("\n1. 보상받기");
+                    Console.WriteLine("0. 뒤로");
+                    Console.Write("\n>> ");
+                    var cmd = Console.ReadLine();
+
+                    if (cmd == "1")
+                    {
+                        if (quest.ClaimReward(inventory))
+                            Console.WriteLine($"\n보상 '{quest.Reward.Name}' 을(를) 획득했습니다!");
+                        else
+                            Console.WriteLine("\n이미 보상을 받았습니다.");
+                        Console.WriteLine("계속하려면 아무 키나 누르세요...");
+                        Console.ReadKey();
+                        return;   // 상세 보기 종료
+                    }
+                    else if (cmd == "0")
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("\n\n1. 퀘스트 포기");
+                    Console.WriteLine("\n0. 뒤로");
+                    Console.Write("\n>> ");
+                    var cmd = Console.ReadLine();
+                    if (cmd == "1")
+                    {
+                        qm.AbandonQuest(quest.Id);
+                        Console.WriteLine("퀘스트를 포기했습니다. 수락 가능한 퀘스트로 이동합니다.");
+                        Console.ReadKey();
+                        ShowAvailable(qm, inventory);
+                        return;
+                    }
+                    else if (cmd != "0")
+                    {
+                        Console.WriteLine("정확히 입력해주세요.\n계속하려면 아무 키나 누르세요.");
+                        Console.ReadKey();
+                    }
+                }
+            }
+        }
+
+        static void ShowAvailable(QuestManager qm, List<Item> inv)
+        {
+            var available = qm.Quests.Where(q => !q.IsAccepted).ToList();
+            if (!available.Any())
+            {
+                Console.WriteLine("수락 가능한 퀘스트가 없습니다.\n계속하려면 아무 키나 누르세요.");
+                Console.ReadKey();
+                return;
+            }
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("< 수락 가능한 퀘스트 >\n");
+                for (int i = 0; i < available.Count; i++)
+                    Console.WriteLine($"{i + 1}. {available[i].Title}");
+                Console.Write("\n상세 정보를 확인할 퀘스트의 번호를 입력하세요. (0: 돌아가기)\n>> ");
+
+                var input = Console.ReadLine();
+                if (input == "0") return;
+
+                if (!int.TryParse(input, out int sel) || sel < 1 || sel > available.Count)
+                {
+                    Console.WriteLine("정확히 입력해주세요.\n계속하려면 아무 키나 누르세요.");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                var quest = available[sel - 1];
+                Console.Clear();
+                var statusKor = quest.Status switch
+                {
+                    QuestStatus.InProgress => "진행중",
+                    QuestStatus.Completed => "완료",
+                    QuestStatus.Rewarded => "보상 받음",
+                    _ => ""
+                };
+
+                Console.WriteLine("< 퀘스트 상세 >\n");
+                Console.WriteLine($"제목: {quest.Title}\n");
+                Console.WriteLine($"설명: {quest.Description}\n");
+                if (quest is KillQuest kq)
+                    Console.WriteLine($"\n진행도: {kq.Progress}/{kq.RequiredCount}");
+
+                Console.WriteLine("\n\n1. 수락");
+                Console.WriteLine("\n0. 돌아가기");
+                Console.Write("\n>> ");
+                var cmd = Console.ReadLine();
+                if (cmd == "1")
+                {
+                    qm.AcceptQuest(quest.Id);
+                    Console.WriteLine($"퀘스트 '{quest.Title}' 수락되었습니다!");
+                    Console.ReadKey();
+                    return;
+                }
+                else if (cmd != "0")
+                {
+                    Console.WriteLine("정확히 입력해주세요.\n계속하려면 아무 키나 누르세요.");
+                    Console.ReadKey();
+                }
+            }
+        }
+        // 퀘스트 관련 메서드 끝 --------------------------------------------------------------------
     }
 }
