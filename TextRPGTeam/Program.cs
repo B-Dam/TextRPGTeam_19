@@ -250,7 +250,7 @@ namespace TextRPGTeam
             while (true) // 메인 화면
             {
                 Console.WriteLine("\n" + hero.Name + "님, 다음은 무엇을 할지 선택해 주세요.\n\n");
-                Console.Write("1. 상태 보기\n\n2. 인벤토리\n\n3. 상점\n\n4. 던전입장\n\n5. 휴식하기\n\n6. 퀘스트\n\n>>");
+                Console.Write("1. 상태 보기\n\n2. 인벤토리\n\n3. 상점\n\n4. 던전입장\n\n5. 회복\n\n6. 퀘스트\n\n>>");
 
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
@@ -743,7 +743,9 @@ namespace TextRPGTeam
                     break;
                 }
                 allDead = true;
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.WriteLine("\nBattle!!\n\n");
+                Console.ResetColor();
                 i = 0;
                 foreach (Monster enm in enemy)
                 {
@@ -783,7 +785,9 @@ namespace TextRPGTeam
             {
                 Console.Clear();
                 count = 0;
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.WriteLine("\nBattle!!\n\n");
+                Console.ResetColor();
                 foreach (Monster enm in enemy)
                 {
                     count++;
@@ -829,7 +833,10 @@ namespace TextRPGTeam
                         }
 
                         enemyHealth[choice - 1] -= damage;
-                        Console.Write($"\nBattle!!\n\n\n{hero.Name}의 공격!\n\n");
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.Write("\nBattle!!\n\n\n");
+                        Console.ResetColor();
+                        Console.Write($"{hero.Name}의 공격!\n\n");
                         Console.Write($"Lv.{foe.Level} {foe.Name} 을(를) 맞췄습니다.");
                         Console.Write($"[데미지 : {damage}]{critText}\n\n\n");
                         Console.Write($"Lv.{foe.Level} {foe.Name}\n\n");
@@ -858,7 +865,9 @@ namespace TextRPGTeam
                 Console.Clear();
                 damage = enm.Att + random.Next(-1, 2);
                 hero.Health -= damage;
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.Write("\nBattle!!\n\n\n");
+                Console.ResetColor();
                 Console.Write($"Lv.{enm.Level} {enm.Name} 의 공격!\n\n");
                 Console.Write($"{hero.Name} 을(를) 맞췄습니다. [데미지 : {damage}]\n\n\n");
                 Console.Write($"Lv.{hero.Level} {hero.Name}\n\n");
@@ -878,8 +887,12 @@ namespace TextRPGTeam
         public static void BattleVictory(List<Monster> enemy, Character hero, QuestManager questMgr) //배틀 승리시 메소드
         {
             Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("\nBattle - Result\n\n");
+            Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Victory\n\n");
+            Console.ResetColor();
             Console.WriteLine($"던전에서 몬스터 {enemy.Count}마리를 잡았습니다.\n\n");
 
             int totalExp = enemy.Count * 10; //몬스터 x 경험치10
@@ -895,8 +908,12 @@ namespace TextRPGTeam
         {
             hero.Health = 0;
             Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("\nBattle - Result\n\n");
+            Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("You Lose\n\n");
+            Console.ResetColor();
             Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
             Console.WriteLine($"HP {hero.Health}/100\n\n");
             Console.Write("아무버튼이나 누르세요..");
