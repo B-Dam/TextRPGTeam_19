@@ -1283,6 +1283,7 @@ namespace TextRPGTeam
             else if (Select == 3)
             {
 
+
                 PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
             }
 
@@ -1375,11 +1376,13 @@ namespace TextRPGTeam
 
                         selectedPotion.Count--;
 
-                        Console.WriteLine($"\n{selectedPotion.potion.Name} 사용!");
-                        if (actualHeal > 0) Console.WriteLine($"체력 {actualHeal} 회복!");
-                        if (actualMana > 0) Console.WriteLine($"마나 {actualMana} 회복!");
+
                         PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
                     }
+                }
+                else
+                {
+                    PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
                 }
             }
         }
