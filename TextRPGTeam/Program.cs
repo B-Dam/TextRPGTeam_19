@@ -135,6 +135,8 @@ namespace TextRPGTeam
 
     internal class Program
     {
+        static int lastClearedDungeonLevel = 0; // 던전 클리어 레벨 기억용
+
         static void Main(string[] args)
         {
             Console.WriteLine("::::::::::: :::::::::: :::    ::: :::::::::::      :::::::::  :::::::::   ::::::::  ");
@@ -214,6 +216,14 @@ namespace TextRPGTeam
                 title: "레벨 업! 2 레벨!",
                 description: "2레벨을 달성해보세요!",
                 targetLevel: 2,
+                reward: new Item("짱 좋은 아이템", "짱 좋은 아이템이에요!", 0, 0, 10000, "아이템 타입")
+            ));
+
+            questMgr.AddQuest(new DungeonQuest(
+                id: 4,
+                title: "던전 2층 클리어!",
+                description: "던전 2층을 클리어 해보세요!",
+                requiredLevel: 2,
                 reward: new Item("짱 좋은 아이템", "짱 좋은 아이템이에요!", 0, 0, 10000, "아이템 타입")
             ));
 
@@ -309,7 +319,7 @@ namespace TextRPGTeam
                     case 6:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            ShowQuest(questMgr, inventory);
+                            ShowQuest(questMgr,hero, inventory);
                             break;
                         }
                     default:
@@ -920,7 +930,11 @@ namespace TextRPGTeam
         }
         public static void BattleVictory(List<Monster> enemy, Character hero, QuestManager questMgr, Dungeon dungeon , PotionInven[] potionInventory) //배틀 승리시 메소드
         {
+            int currentDungeonLevel = dungeon.DungeonLevel;
+            questMgr.OnDungeonCleared(currentDungeonLevel);
+            lastClearedDungeonLevel = currentDungeonLevel;
             dungeon.DungeonLevel++;
+
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("\nBattle - Result\n\n");
@@ -1047,7 +1061,7 @@ namespace TextRPGTeam
         }
 
         // 퀘스트 관련 메서드 --------------------------------------------------------------------
-        static void ShowQuest(QuestManager qm, List<Item> inventory)
+        static void ShowQuest(QuestManager qm, Character c, List<Item> inventory)
         {
             while (true)
             {
@@ -1066,9 +1080,9 @@ namespace TextRPGTeam
                 }
 
                 if (choice == "1")
-                    ShowInProgress(qm, inventory);
+                    ShowInProgress(qm, c, inventory);
                 else if (choice == "2")
-                    ShowAvailable(qm, inventory);
+                    ShowAvailable(qm, c, inventory);
                 else
                 {
                     Console.WriteLine("정확히 입력해주세요.\n계속하려면 아무 키나 누르세요.");
@@ -1077,7 +1091,7 @@ namespace TextRPGTeam
             }
         }
 
-        static void ShowInProgress(QuestManager qm, List<Item> inventory)
+        static void ShowInProgress(QuestManager qm,Character c, List<Item> inventory)
         {
             var accepted = qm.Quests.Where(q => q.IsAccepted).ToList();
 
@@ -1175,7 +1189,7 @@ namespace TextRPGTeam
                         qm.AbandonQuest(quest.Id);
                         Console.WriteLine("퀘스트를 포기했습니다. 수락 가능한 퀘스트로 이동합니다.");
                         Console.ReadKey();
-                        ShowAvailable(qm, inventory);
+                        ShowAvailable(qm, c, inventory);
                         return;
                     }
                     else if (cmd != "0")
@@ -1187,7 +1201,7 @@ namespace TextRPGTeam
             }
         }
 
-        static void ShowAvailable(QuestManager qm, List<Item> inv)
+        static void ShowAvailable(QuestManager qm,Character c, List<Item> inv)
         {
             var available = qm.Quests.Where(q => !q.IsAccepted).ToList();
             if (!available.Any())
@@ -1237,7 +1251,9 @@ namespace TextRPGTeam
                 var cmd = Console.ReadLine();
                 if (cmd == "1")
                 {
-                    qm.AcceptQuest(quest.Id);
+                    var equipped = inv.Where(i => i.Equip).ToList();
+                    qm.AcceptQuest(quest.Id, c.Level, equipped, lastClearedDungeonLevel);
+
                     Console.WriteLine($"퀘스트 '{quest.Title}' 수락되었습니다!");
                     Console.ReadKey();
                     return;
