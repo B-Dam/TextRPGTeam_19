@@ -47,6 +47,14 @@ namespace TextRPGTeam
         }
     }
     // 직업
+    class Dungeon()
+    {
+        public int DungeonLevel = 1;
+        public Dungeon(int l) : this()
+        {
+
+        }
+    }
 
     public class Character()
     {
@@ -138,6 +146,7 @@ namespace TextRPGTeam
             Console.Clear();
 
             Character hero = new Character(); // 플레이어 정보
+            Dungeon dungeon = new Dungeon();
 
             Class[] job = // 직업
                 [
@@ -272,13 +281,13 @@ namespace TextRPGTeam
                     case 3:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            Store(shop, inventory, hero,potionInventory);// 상점가기
+                            Store(shop, inventory, hero, potionInventory);// 상점가기
                             break;
                         }
                     case 4:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            Battle(mob, hero, questMgr);
+                            Dungeon(mob, hero, dungeon, questMgr);
                             break;
                         }
                     case 5:
@@ -428,7 +437,7 @@ namespace TextRPGTeam
                     Console.ForegroundColor = ConsoleColor.DarkGreen; // 아이템 장착시 컬러 변경
                     Console.Write("[E]");
                 }
-                Console.Write($"{PadRightForConsole(item.Name,16)}| ");
+                Console.Write($"{PadRightForConsole(item.Name, 16)}| ");
                 if (item.Att != 0)
                     Console.Write("공격력 +" + item.Att + " | ");
                 if (item.Def != 0)
@@ -448,7 +457,7 @@ namespace TextRPGTeam
                 Console.Write("- ");
                 if (num)
                     Console.Write(i + " ");
-                Console.Write($"{PadRightForConsole(item.Name,16)}| ");
+                Console.Write($"{PadRightForConsole(item.Name, 16)}| ");
                 if (item.Att != 0)
                     Console.Write("공격력 +" + item.Att + " | ");
                 if (item.Def != 0)
@@ -482,7 +491,7 @@ namespace TextRPGTeam
                     Console.Write(i + " ");
                 if (item.Equip && equip)
                     Console.Write("[E]");
-                Console.Write($"{PadRightForConsole(item.Name,16)}| ");
+                Console.Write($"{PadRightForConsole(item.Name, 16)}| ");
                 if (item.Att != 0)
                     Console.Write("공격력 +" + item.Att + " | ");
                 if (item.Def != 0)
@@ -506,7 +515,7 @@ namespace TextRPGTeam
                 ShowItem(Shop, Inventory);
                 foreach (PotionInven pot in potion)
                 {
-                    Console.WriteLine($"- {PadRightForConsole(pot.potion.Name,16)}| {pot.potion.Description} | {pot.potion.Value}");
+                    Console.WriteLine($"- {PadRightForConsole(pot.potion.Name, 16)}| {pot.potion.Description} | {pot.potion.Value}");
                 }
                 Console.WriteLine("\n1. 아이템 구매\n\n2. 아이템 판매\n\n0. 나가기");
                 Console.Write("\n원하시는 행동을 입력해주세요\n>>");
@@ -517,8 +526,8 @@ namespace TextRPGTeam
                 switch (choice)
                 {
                     case 0: Console.Clear(); break;
-                    case 1: BuyItem(Shop, Inventory, ref hero.Cash,potion); break;
-                    case 2: SellItem(Inventory, hero,potion); break;
+                    case 1: BuyItem(Shop, Inventory, ref hero.Cash, potion); break;
+                    case 2: SellItem(Inventory, hero, potion); break;
                     default:
                         Console.Clear();
                         Console.WriteLine("잘못된 입력입니다. 다시 선택해 주세요.\n"); break;
@@ -607,7 +616,7 @@ namespace TextRPGTeam
             {
                 Console.WriteLine("\n상점 - 아이템 판매\n\n필요한 아이템을 얻을 수 있는 상점입니다.\n\n");
                 Console.WriteLine("[보유 골드]\n\n" + hero.Cash + " G\n\n\n[아이템 목록]\n");
-                maxNumber=ShowItem(Inventory, true, true, Constants.sale);
+                maxNumber = ShowItem(Inventory, true, true, Constants.sale);
                 foreach (PotionInven pot in potion)
                 {
                     if (pot.Count > 0)
@@ -642,8 +651,9 @@ namespace TextRPGTeam
                 {
                     int c = choice - Inventory.Count - 1;
                     foreach (PotionInven pot in potion)
-                    {   if(pot.Count <= 0) { continue; }
-                        else if (c>0) { c--; continue; }
+                    {
+                        if (pot.Count <= 0) { continue; }
+                        else if (c > 0) { c--; continue; }
                         else
                         {
                             hero.Cash += (int)(pot.potion.Value * Constants.sale);
@@ -717,11 +727,11 @@ namespace TextRPGTeam
         }
         //휴식
 
-        public static void Battle(List<Monster> mob, Character hero, QuestManager questMgr)//배틀 메소드
+        public static void Battle(List<Monster> mob, Character hero, QuestManager questMgr, Dungeon dungeon)//배틀 메소드
         {
             bool allDead;
             Random random = new Random();
-            int mobCount = random.Next(1, 4);//몬스터 생성 마릿수
+            int mobCount = random.Next(dungeon.DungeonLevel, dungeon.DungeonLevel + 1);//몬스터 생성 마릿수
             int[] enemyHealth = new int[mobCount];//몬스터 체력 저장 변수, class는 같은 종류의 몬스터들의 체력을 하나로 보아 필요
             int i;
             List<Monster> enemy = new List<Monster> { };//전투시의 적 리스트
@@ -762,7 +772,7 @@ namespace TextRPGTeam
                     }
                     i++;
                 }
-                if (allDead) { Console.Clear(); BattleVictory(enemy, hero, questMgr); Console.Clear(); break; }
+                if (allDead) { Console.Clear(); BattleVictory(enemy, hero, questMgr, dungeon); Console.Clear(); break; }
 
                 Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/{hero.MaxHealth}\n\nMP {hero.Mana}/{hero.MaxMana}\n\n");
                 Console.Write("\n1. 공격\n\n원하시는 행동을 입력해주세요.\n>>");
@@ -809,7 +819,7 @@ namespace TextRPGTeam
 
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
-                if(choice == 0) { Console.Clear(); break; }
+                if (choice == 0) { Console.Clear(); break; }
                 else if (choice > 0 && choice <= count && enemyHealth[choice - 1] > 0)
                 {
                     Console.Clear();
@@ -897,8 +907,9 @@ namespace TextRPGTeam
                 }
             }
         }
-        public static void BattleVictory(List<Monster> enemy, Character hero, QuestManager questMgr) //배틀 승리시 메소드
+        public static void BattleVictory(List<Monster> enemy, Character hero, QuestManager questMgr, Dungeon dungeon) //배틀 승리시 메소드
         {
+            dungeon.DungeonLevel++;
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("\nBattle - Result\n\n");
@@ -1175,5 +1186,46 @@ namespace TextRPGTeam
             }
         }
         // 퀘스트 관련 메서드 끝 --------------------------------------------------------------------
+
+        public static void Dungeon(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr)
+        {
+
+            Console.Clear();
+
+            Console.WriteLine("스파르타 던전에 오신 여러분 환영합니다.\r\n이제 전투를 시작할 수 있습니다.");
+            Console.WriteLine("");
+            Console.WriteLine("0. 이전 화면");
+            Console.WriteLine("1. 상태 보기");
+            Console.WriteLine($"2. 전투 시작 (현재 진행 : {dungeon.DungeonLevel}층)");
+            Console.WriteLine("3. 포션 사용");
+            Console.WriteLine("원하시는 행동을 입력해주세요.\r\n");
+            int Select = int.Parse(Console.ReadLine());
+
+            if (Select == 0)
+            {
+                Console.Clear();
+            }
+            else if (Select == 1)
+            {
+                Status(hero);
+            }
+            else if (Select == 2)
+            {
+                Battle(mob, hero, questMgr, dungeon);
+            }
+            else if (Select == 3)
+            {
+
+            }
+
+            else
+            {
+                Console.WriteLine("잘못된입력");
+            }
+
+        }
+
+
+
     }
 }
