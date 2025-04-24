@@ -1,4 +1,4 @@
-﻿using global::TextRPGTeam.QuestSystem;
+using global::TextRPGTeam.QuestSystem;
 using System;
 using System.Threading.Tasks.Dataflow;
 using TextRPGTeam.QuestSystem; // using문 추가
@@ -36,7 +36,8 @@ namespace TextRPGTeam
         public int Def;
         public int Health;
         public int Mana;
-        public Class(string n, string d, int a, int de, int h = 100, int m = 50) : this()
+        public Skill[] SkillSet;
+        public Class(string n, string d, int a, int de, int h, int m, Skill[] sk) : this()
         {
             Name = n;
             Description = d;
@@ -44,9 +45,37 @@ namespace TextRPGTeam
             Def = de;
             Health = h;
             Mana = m;
+            SkillSet = sk;
         }
     }
     // 직업
+
+    struct Skill()
+    {
+        public string Name;
+        public string Description;
+        public int TargetNumber;//타겟 수 -1 전체, 0 자신(버프 등),1+ n명 타격
+        public bool TargetRandom;//타겟팅 랜덤
+        public float Multiplier;//데미지 배율
+        public int ManaConsume;//소비마나
+        public Skill(string n,string d, int t,bool tr,float m, int mc):this()
+        {
+            Name= n;
+            Description= d;
+            TargetNumber = t;
+            TargetRandom = tr;
+            Multiplier = m;
+            ManaConsume = mc;
+        }
+    }
+    class Dungeon()
+    {
+        public int DungeonLevel = 1;
+        public Dungeon(int l) : this()
+        {
+
+        }
+    }
 
     public class Character()
     {
@@ -139,11 +168,27 @@ namespace TextRPGTeam
 
             Character hero = new Character(); // 플레이어 정보
 
+            Skill[] warrior =
+            {
+                new Skill("베어가르기","상대를 크게 베어 갈라서 공격한다.",1,false,2,10),
+                new Skill("더블 어택","상대를 때려 공격한다. 2회 연속으로 데미지를 준다.",2,true,1.5f,15)
+            };
+            Skill[] thief =
+            {
+                new Skill("깜짝베기","순간적으로 빈틈을 노려 상대를 베어 버린다.",1,false,3,10),
+                new Skill("훔치기","공격과 동시에 도구를 훔친다.",1,true,0.8f,15)
+            };
+            Skill[] magicion =
+            {
+                new Skill("불꽃세례","작은 불꽃을 상대에게 발사하여 공격한다.",1,false,1.5f,5),
+                new Skill("열풍","뜨거운 바람을 상대에게 내뿜어 공격한다.",-1,false,2,30),
+                new Skill("성스러운불꽃","신비한 불꽃으로 상대를 태워서 공격한다.",1,true,6,35)
+            };
             Class[] job = // 직업
                 [
-                     new Class("전사", "전사입니다.", 10, 5,100,50),
-                         new Class("도적", "도적입니다.", 15, 3, 80, 50),
-                         new Class("마법사", "마법사입니다.", 8, 6, 70, 100)
+                     new Class("전사", "전사입니다.", 10, 5,100,50, warrior),
+                         new Class("도적", "도적입니다.", 15, 3, 80, 50, thief),
+                         new Class("마법사", "마법사입니다.", 8, 6, 70, 100, magicion)
                 ];
 
             List<Item> shop = new List<Item> // 상점 아이템
@@ -765,7 +810,7 @@ namespace TextRPGTeam
                 if (allDead) { Console.Clear(); BattleVictory(enemy, hero, questMgr); Console.Clear(); break; }
 
                 Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/{hero.MaxHealth}\n\nMP {hero.Mana}/{hero.MaxMana}\n\n");
-                Console.Write("\n1. 공격\n\n원하시는 행동을 입력해주세요.\n>>");
+                Console.Write("\n1. 공격\n2.스킬\n\n원하시는 행동을 입력해주세요.\n>>");
 
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
@@ -773,6 +818,7 @@ namespace TextRPGTeam
                 switch (choice)
                 {
                     case 1: BattleAttack(enemy, hero, enemyHealth, questMgr); break;
+                    case 2: BattleSkill(enemy, hero, enemyHealth, questMgr); break;
                     default: Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break;
                 }
             }
@@ -810,6 +856,95 @@ namespace TextRPGTeam
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
                 if(choice == 0) { Console.Clear(); break; }
+                else if (choice > 0 && choice <= count && enemyHealth[choice - 1] > 0)
+                {
+                    Console.Clear();
+
+                    int targetIndex = choice - 1;
+                    foe = enemy[targetIndex];
+
+                    bool isEvaded = random.Next(0, 100) < foe.EvadeRate;
+                    bool isCritical = random.Next(0, 100) < hero.CritRate;
+                    damage = (int)(hero.Att + hero.EqAtt) + random.Next(-1, 2);//공격력과 장비공격력을 더하고 오차 +-1의 데미지
+
+                    if (isEvaded) //몬스터 회피
+                    {
+                        damage = 0;
+                        Console.Clear();
+                        Console.Write($"\nBattle!!\n\n\n{hero.Name}의 공격!\n\n");
+                        Console.WriteLine($"{foe.Name} 을(를) 공격했지만 아무일도 일어나지 않았습니다.");
+                        Console.Write("\n\n\n아무버튼이나 누르세요..");
+                        Console.ReadLine();
+                        EnemyAttack(enemy, hero, enemyHealth, questMgr);
+                        break;
+                    }
+                    else
+                    {
+                        string critText = "";
+                        if (isCritical) //플레이어 치명타
+                        {
+                            damage = (int)(damage * hero.CritMultiplier);
+                            critText = " - 치명타 공격!!";
+                        }
+
+                        enemyHealth[targetIndex] -= damage;
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.Write("\nBattle!!\n\n\n");
+                        Console.ResetColor();
+                        Console.Write($"{hero.Name}의 공격!\n\n");
+                        Console.Write($"Lv.{foe.Level} {foe.Name} 을(를) 맞췄습니다.");
+                        Console.Write($"[데미지 : {damage}]{critText}\n\n\n");
+                        Console.Write($"Lv.{foe.Level} {foe.Name}\n\n");
+                        if (enemyHealth[targetIndex] > 0)
+                            Console.Write($"HP {enemyHealth[targetIndex] + damage} -> {enemyHealth[targetIndex]}");
+                        else
+                        {
+                            Console.Write($"HP {enemyHealth[targetIndex] + damage} -> Dead");
+                            questMgr.OnMonsterKilled(foe.Name);
+                        }
+                        Console.Write("\n\n\n아무버튼이나 누르세요..");
+                        Console.ReadLine();
+
+                        EnemyAttack(enemy, hero, enemyHealth, questMgr);
+                        break;
+                    }
+                }
+                else { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); }
+            }
+        }
+        public static void BattleSkill(List<Monster> enemy, Character hero, int[] enemyHealth, QuestManager questMgr) //플레이어 스킬사용시 메소드(아직 수정안함)
+        {
+            Random random = new Random();
+            int choice;
+            int count;
+            Monster foe;
+            int damage;
+            Console.Clear();
+            while (true)
+            {
+                count = 0;
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.WriteLine("\nBattle!!\n\n");
+                Console.ResetColor();
+                foreach (Monster enm in enemy)
+                {
+                    count++;
+                    if (enemyHealth[count - 1] > 0)
+                        Console.WriteLine($"{count} Lv.{enm.Level}  {PadRightForConsole(enm.Name, 15)}HP {enemyHealth[count - 1]}");
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.WriteLine($"  Lv.{enm.Level}  {PadRightForConsole(enm.Name, 15)}Dead");
+                        Console.ResetColor();
+                    }
+                }
+
+                Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/{hero.MaxHealth}\n\nMP {hero.Mana}/{hero.MaxMana}\n\n");
+                Console.Write("\n0. 취소\n\n대상을 선택해주세요.\n>>");
+
+                try { choice = int.Parse(Console.ReadLine()); }
+                catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
+                if (choice == 0) { Console.Clear(); break; }
                 else if (choice > 0 && choice <= count && enemyHealth[choice - 1] > 0)
                 {
                     Console.Clear();
