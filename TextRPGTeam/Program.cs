@@ -80,14 +80,7 @@ namespace TextRPGTeam
             ManaConsume = mc;
         }
     }
-    class Dungeon()
-    {
-        public int DungeonLevel = 1;
-        public Dungeon(int l) : this()
-        {
 
-        }
-    }
 
     public class Character()
     {
@@ -349,7 +342,7 @@ namespace TextRPGTeam
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
 
-                            Dungeon(mob, hero, dungeon, questMgr, potionInventory, hero);
+
 
                             Dungeon(mob, hero, dungeon, questMgr, potionInventory);
 
@@ -1533,7 +1526,7 @@ namespace TextRPGTeam
 
                 if (Select == 0)
                 {
-                    Dungeon(mob, hero, dungeon, questMgr, potionInventory, c);
+                    Dungeon(mob, hero, dungeon, questMgr, potionInventory);
                     return;
                 }
 
