@@ -287,7 +287,7 @@ namespace TextRPGTeam
                     case 4:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            Dungeon(mob, hero, dungeon, questMgr, potionInventory,hero);
+                            Dungeon(mob, hero, dungeon, questMgr, potionInventory, hero);
                             break;
                         }
                     case 5:
@@ -1187,7 +1187,7 @@ namespace TextRPGTeam
         }
         // 퀘스트 관련 메서드 끝 --------------------------------------------------------------------
 
-        public static void Dungeon(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory , Character c)
+        public static void Dungeon(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory, Character c)
         {
 
             Console.Clear();
@@ -1215,6 +1215,7 @@ namespace TextRPGTeam
             }
             else if (Select == 3)
             {
+
                 PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
             }
 
@@ -1224,7 +1225,7 @@ namespace TextRPGTeam
             }
 
         }
-        public static void PotionHeal(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory,Character c)
+        public static void PotionHeal(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory, Character c)
         {
             int choice;
             int Potion;
@@ -1257,43 +1258,64 @@ namespace TextRPGTeam
                 //2. 마나포션
                 //3. 엘릭서
 
-                Console.WriteLine("" );
-                Console.WriteLine("체 력 : " + c.Health + " / " + c.MaxHealth );
-                Console.WriteLine("마 력 : " + c.Mana + " / " + c.MaxMana  );
+
+                Console.WriteLine("");
+                Console.WriteLine("체 력 : " + c.Health + " / " + c.MaxHealth);
+                Console.WriteLine("마 력 : " + c.Mana + " / " + c.MaxMana);
+
 
 
                 int Select = int.Parse(Console.ReadLine());
 
 
+
+
                 if (Select == 0)
                 {
-
-                    Dungeon(mob, hero, dungeon, questMgr, potionInventory,c);
+                    Dungeon(mob, hero, dungeon, questMgr, potionInventory, c);
+                    return;
                 }
-                else if (Select == 1)
+
+                int selectedIndex = Select - 1;
+                if (selectedIndex >= 0 && selectedIndex < potionInventory.Length)
                 {
-                    PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
-                }
-                else if (Select == 2)
-                {
-                    PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
-                }
-                else if (Select == 3)
-                {
-                    PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
-                }
-                else
-                {
-                    Console.WriteLine("잘못된입력");
-                }
+                    var selectedPotion = potionInventory[selectedIndex];
+
+                    if (selectedPotion.Count <= 0)
+                    {
+                        Console.WriteLine("\n포션이 부족합니다.");
+                    }
+                    else
+                    {
 
 
+                        int heal = selectedPotion.potion.Heal;
+                        int mana = selectedPotion.potion.Mana;
 
+                        int actualHeal = Math.Min(heal, c.MaxHealth - c.Health);
+                        int actualMana = Math.Min(mana, c.MaxMana - c.Mana);
 
+                        c.Health += actualHeal;
+                        c.Mana += actualMana;
+
+                        if (c.Health > c.MaxHealth)
+                        {
+                            c.Health = c.MaxHealth;
+                        }
+                        if (c.Mana > c.MaxMana)
+                        {
+                            c.Mana = c.MaxMana;
+                        }
+
+                        selectedPotion.Count--;
+
+                        Console.WriteLine($"\n{selectedPotion.potion.Name} 사용!");
+                        if (actualHeal > 0) Console.WriteLine($"체력 {actualHeal} 회복!");
+                        if (actualMana > 0) Console.WriteLine($"마나 {actualMana} 회복!");
+                        PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
+                    }
+                }
             }
-
-
-
         }
     }
 }
