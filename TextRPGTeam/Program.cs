@@ -297,7 +297,7 @@ namespace TextRPGTeam
             while (true) // 메인 화면
             {
                 Console.WriteLine("\n" + hero.Name + "님, 다음은 무엇을 할지 선택해 주세요.\n\n");
-                Console.Write("1. 상태 보기\n\n2. 인벤토리\n\n3. 상점\n\n4. 던전입장\n\n5. 회복\n\n6. 퀘스트\n\n>>");
+                Console.Write("1. 상태 보기\n2. 인벤토리\n3. 상점\n4. 던전입장\n5. 회복\n6. 퀘스트\n\n\n0. 캐릭터 직업 변경\n\n>>");
 
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
@@ -353,10 +353,19 @@ namespace TextRPGTeam
         {
             Console.Clear();
 
+            static void PrintColor(string message, ConsoleColor color)
+            {
+                Console.ForegroundColor = color; // 컬러 지정
+                Console.WriteLine(message);
+                Console.ResetColor(); // 컬러 초기화
+            }
+
             while (true)
             {
-                Console.WriteLine("\n상태보기\n\n캐릭터의 정보가 표시됩니다.\n\n");
-                Console.WriteLine("Lv. " + string.Format("{0:D2}", c.Level) + "\n");
+                PrintColor("\n<상태보기>", ConsoleColor.Cyan);
+                Console.WriteLine("\n캐릭터의 정보가 표시됩니다.\n\n");
+                Console.Write("Lv. ");
+                PrintColor($"{c.Level:D2}", ConsoleColor.Blue);
                 Console.WriteLine(c.Name + " ( " + c.Class + " )\n");
                 Console.WriteLine("공격력 : " + (c.Att + c.EqAtt) + (c.EqAtt == 0 ? "" : " (" + (c.EqAtt > 0 ? "+" : "") + c.EqAtt + ")") + "\n");
                 Console.WriteLine("방어력 : " + (c.Def + c.EqDef) + (c.EqDef == 0 ? "" : " (" + (c.EqDef > 0 ? "+" : "") + c.EqDef + ")") + "\n");
@@ -387,7 +396,10 @@ namespace TextRPGTeam
 
             while (true)
             {
-                Console.WriteLine("\n인벤토리\n\n보유 중인 아이템을 관리할 수 있습니다.\n\n\n[아이템 목록]\n");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("\n<인벤토리>");
+                Console.ResetColor();
+                Console.WriteLine("\n보유 중인 아이템을 관리할 수 있습니다.\n\n\n[아이템 목록]\n");
                 ShowItem(Inventory, true);
                 Console.Write("\n1. 장착 관리\n\n2. 나가기\n\n원하시는 행동을 입력해주세요.\n>>");
                 try { choice = int.Parse(Console.ReadLine()); }
@@ -412,7 +424,10 @@ namespace TextRPGTeam
 
             while (true)
             {
-                Console.WriteLine("\n인벤토리 - 장착 관리\n\n보유 중인 아이템을 관리할 수 있습니다.\n\n\n[아이템 목록]\n");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("\n<인벤토리 - 장착 관리>");
+                Console.ResetColor();
+                Console.WriteLine("\n보유 중인 아이템을 관리할 수 있습니다.\n\n\n[아이템 목록]\n");
                 ShowItem(items, true, true);
                 Console.WriteLine("\n0. 나가기");
                 Console.Write("\n\n원하시는 행동을 입력해주세요.\n>>");
@@ -548,7 +563,10 @@ namespace TextRPGTeam
 
             while (true)
             {
-                Console.WriteLine("\n상점\n\n필요한 아이템을 얻을 수 있는 상점입니다.\n\n");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("\n<상점>");
+                Console.ResetColor();
+                Console.WriteLine("\n필요한 아이템을 얻을 수 있는 상점입니다.\n\n");
                 Console.WriteLine("[보유 골드]\n\n" + hero.Cash + " G\n\n\n[아이템 목록]\n");
                 ShowItem(Shop, Inventory);
                 foreach (PotionInven pot in potion)
@@ -583,7 +601,10 @@ namespace TextRPGTeam
 
             while (true)
             {
-                Console.WriteLine("\n상점 - 아이템 구매\n\n필요한 아이템을 얻을 수 있는 상점입니다.\n\n");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("\n<상점 - 아이템 구매>");
+                Console.ResetColor();
+                Console.WriteLine("\n필요한 아이템을 얻을 수 있는 상점입니다.\n\n");
                 Console.WriteLine("[보유 골드]\n\n" + money + " G\n\n\n[아이템 목록]\n");
                 maxNumber = ShowItem(Shop, Inventory, true);
                 foreach (PotionInven pot in potion)
@@ -652,7 +673,10 @@ namespace TextRPGTeam
 
             while (true)
             {
-                Console.WriteLine("\n상점 - 아이템 판매\n\n필요한 아이템을 얻을 수 있는 상점입니다.\n\n");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("\n<상점 - 아이템 판매>");
+                Console.ResetColor();
+                Console.WriteLine("\n필요한 아이템을 얻을 수 있는 상점입니다.\n\n");
                 Console.WriteLine("[보유 골드]\n\n" + hero.Cash + " G\n\n\n[아이템 목록]\n");
                 maxNumber = ShowItem(Inventory, true, true, Constants.sale);
                 foreach (PotionInven pot in potion)
@@ -720,7 +744,10 @@ namespace TextRPGTeam
             while (true)
             {
                 count = 0;
-                Console.Write("\n회복\n\n포션을 사용하여 회복할 수 있습니다. \n\n");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("\n<회복>\n");
+                Console.ResetColor();
+                Console.WriteLine("\n포션을 사용하여 회복할 수 있습니다. \n\n");
                 Console.WriteLine($"(현재체력 : {hero.Health}/{hero.MaxHealth} / 현재마나 : {hero.Mana}/{hero.MaxMana})\n\n");
                 foreach (PotionInven potion in potionInventory)
                 {
@@ -1144,7 +1171,9 @@ namespace TextRPGTeam
             while (true)
             {
                 Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine("< 퀘스트 메뉴 >\n");
+                Console.ResetColor();
                 Console.WriteLine("1. 진행 중 퀘스트");
                 Console.WriteLine("2. 수락 가능한 퀘스트");
                 Console.WriteLine("\n0. 뒤로");
@@ -1171,6 +1200,13 @@ namespace TextRPGTeam
 
         static void ShowInProgress(QuestManager qm, List<Item> inventory)
         {
+            static void PrintColor(string message, ConsoleColor color)
+            {
+                Console.ForegroundColor = color;
+                Console.WriteLine(message);
+                Console.ResetColor();
+            }
+
             var accepted = qm.Quests.Where(q => q.IsAccepted).ToList();
 
             if (!accepted.Any())
@@ -1183,7 +1219,7 @@ namespace TextRPGTeam
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("< 진행 중 퀘스트 >\n");
+                PrintColor("< 진행 중 퀘스트 >\n", ConsoleColor.Cyan);
                 Console.WriteLine("이곳에서 수락한 퀘스트의 진행도와 상세정보를 확인할 수 있습니다.\n");
                 for (int i = 0; i < accepted.Count; i++)
                 {
@@ -1219,8 +1255,8 @@ namespace TextRPGTeam
                     QuestStatus.Rewarded => "보상 받음",
                 };
 
-                Console.WriteLine("< 퀘스트 상세 >\n");
-                Console.WriteLine("퀘스트를 포기하면 진행도가 초기화됩니다! 주의하세요!\n");
+                PrintColor("< 퀘스트 상세 >\n", ConsoleColor.Cyan);
+                PrintColor("퀘스트를 포기하면 진행도가 초기화됩니다! 주의하세요!\n", ConsoleColor.DarkRed);
                 Console.WriteLine($"제목: {quest.Title}\n");
                 Console.WriteLine($"설명: {quest.Description}\n");
                 Console.WriteLine($"상태: [{statusKor}]");
@@ -1281,6 +1317,13 @@ namespace TextRPGTeam
 
         static void ShowAvailable(QuestManager qm, List<Item> inv)
         {
+            static void PrintColor(string message, ConsoleColor color)
+            {
+                Console.ForegroundColor = color;
+                Console.WriteLine(message);
+                Console.ResetColor();
+            }
+
             var available = qm.Quests.Where(q => !q.IsAccepted).ToList();
             if (!available.Any())
             {
@@ -1292,7 +1335,7 @@ namespace TextRPGTeam
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("< 수락 가능한 퀘스트 >\n");
+                PrintColor("< 수락 가능한 퀘스트 >\n", ConsoleColor.Cyan);
                 for (int i = 0; i < available.Count; i++)
                     Console.WriteLine($"{i + 1}. {available[i].Title}");
                 Console.Write("\n상세 정보를 확인할 퀘스트의 번호를 입력하세요. (0: 돌아가기)\n>> ");
@@ -1317,7 +1360,7 @@ namespace TextRPGTeam
                     _ => ""
                 };
 
-                Console.WriteLine("< 퀘스트 상세 >\n");
+                PrintColor("< 퀘스트 상세 >\n", ConsoleColor.Cyan);
                 Console.WriteLine($"제목 : {quest.Title}\n");
                 Console.WriteLine($"설명 : {quest.Description}\n");
                 if (quest is KillQuest kq)
