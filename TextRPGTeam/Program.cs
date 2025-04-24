@@ -287,7 +287,7 @@ namespace TextRPGTeam
                     case 4:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            Dungeon(mob, hero, dungeon, questMgr);
+                            Dungeon(mob, hero, dungeon, questMgr, potionInventory,hero);
                             break;
                         }
                     case 5:
@@ -1187,7 +1187,7 @@ namespace TextRPGTeam
         }
         // 퀘스트 관련 메서드 끝 --------------------------------------------------------------------
 
-        public static void Dungeon(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr)
+        public static void Dungeon(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory , Character c)
         {
 
             Console.Clear();
@@ -1197,7 +1197,7 @@ namespace TextRPGTeam
             Console.WriteLine("0. 이전 화면");
             Console.WriteLine("1. 상태 보기");
             Console.WriteLine($"2. 전투 시작 (현재 진행 : {dungeon.DungeonLevel}층)");
-            Console.WriteLine("3. 포션 사용");
+            Console.WriteLine("3.회복 아이템");
             Console.WriteLine("원하시는 행동을 입력해주세요.\r\n");
             int Select = int.Parse(Console.ReadLine());
 
@@ -1215,7 +1215,7 @@ namespace TextRPGTeam
             }
             else if (Select == 3)
             {
-
+                PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
             }
 
             else
@@ -1224,8 +1224,76 @@ namespace TextRPGTeam
             }
 
         }
+        public static void PotionHeal(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory,Character c)
+        {
+            int choice;
+            int Potion;
+            int No = 0;
+            int pageSize = 5; // 한 번에 보여줄 포션 개수
+            int page = 0;
+            int total = potionInventory.Length;
+
+            while (page * pageSize < total)
+            {
+                Console.Clear();
+                Console.WriteLine("회복");
+                Console.WriteLine("포션을 사용하실 수 있습니다.\n");
+                Console.WriteLine("0. 이전 화면");
+
+                int start = page * pageSize;
+                int end = Math.Min(start + pageSize, total);
+
+                for (int i = start; i < end; i++)
+                {
+                    No++;
+                    string namePadded = PadRightForConsole(potionInventory[i].potion.Name, 16);
+                    string description = potionInventory[i].potion.Description;
+                    int value = potionInventory[i].potion.Value;
+                    int count = potionInventory[i].Count;
+
+                    Console.WriteLine($"{No}. {namePadded}| {description}({count}개 보유)");
+                }
+                //1.체력 포션
+                //2. 마나포션
+                //3. 엘릭서
+
+                Console.WriteLine("" );
+                Console.WriteLine("체 력 : " + c.Health + " / " + c.MaxHealth );
+                Console.WriteLine("마 력 : " + c.Mana + " / " + c.MaxMana  );
+
+
+                int Select = int.Parse(Console.ReadLine());
+
+
+                if (Select == 0)
+                {
+
+                    Dungeon(mob, hero, dungeon, questMgr, potionInventory,c);
+                }
+                else if (Select == 1)
+                {
+                    PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
+                }
+                else if (Select == 2)
+                {
+                    PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
+                }
+                else if (Select == 3)
+                {
+                    PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
+                }
+                else
+                {
+                    Console.WriteLine("잘못된입력");
+                }
 
 
 
+
+            }
+
+
+
+        }
     }
 }
