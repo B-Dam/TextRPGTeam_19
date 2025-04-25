@@ -1207,16 +1207,11 @@ namespace TextRPGTeam
                 //레벨업시
                 hero.Att += 1; //힘 1증가
                 hero.Def += 1; //방어 1증가
-                hero.Health = 100; //체력 100회복
+
                 hero.Cash += 500; //캐쉬 500원
-                if (hero.Health > hero.MaxHealth)
-                {
-                    hero.Health = hero.MaxHealth;
-                }
-                if (hero.Mana > hero.MaxMana)
-                {
-                    hero.Mana = hero.MaxMana;
-                }
+                hero.Health = hero.MaxHealth;
+                hero.Mana = hero.MaxMana;
+                
 
                 Console.WriteLine($"\n레벨업! {hero.Level}레벨이 되었습니다.");
                 Console.WriteLine("공격력이 1 올랐습니다!\n방어력이 1 올랐습니다!\n500 G를 획득했습니다!");
@@ -1446,7 +1441,7 @@ namespace TextRPGTeam
         }
         // 퀘스트 관련 메서드 끝 --------------------------------------------------------------------
 
-        // 던전 관련 메서드 끝 --------------------------------------------------------------------
+        // 던전 관련 메서드  --------------------------------------------------------------------
 
         public static void Dungeon(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory, Character c)
         {
