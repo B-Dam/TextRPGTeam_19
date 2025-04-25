@@ -91,6 +91,8 @@ namespace TextRPGTeam
         public float EqAtt = 0; // 장비 공격력
         public float Def;
         public float EqDef = 0; // 장비 방어력
+        public int LevelBonusAtt = 0;
+        public int LevelBonusDef = 0;
         public int Health;
         public int Mana;
         public int MaxHealth;
@@ -421,13 +423,19 @@ namespace TextRPGTeam
                         continue;
                     }
 
-                    hero.Class = selected.Name;
-                    hero.Att = selected.Att;
-                    hero.Def = selected.Def;
-                    hero.Health = selected.Health;
-                    hero.Mana = selected.Mana;
+                    int preHealth = hero.Health;
+                    int preMana = hero.Mana;
+
                     hero.MaxHealth = selected.Health;
                     hero.MaxMana = selected.Mana;
+                    hero.Health = Math.Min(preHealth, hero.MaxHealth);
+                    hero.Mana = Math.Min(preMana, hero.MaxMana);
+
+                    hero.Class = selected.Name; 
+
+                    hero.Att = selected.Att;
+                    hero.Def = selected.Def;
+                    
                     hero.SkillSet = selected.SkillSet;
 
                     Console.Write("\n직업이");
@@ -466,8 +474,36 @@ namespace TextRPGTeam
                 Console.Write("Lv. ");
                 PrintColor($"{c.Level:D2}", ConsoleColor.Blue);
                 Console.WriteLine(c.Name + " ( " + c.Class + " )\n");
-                Console.WriteLine("공격력 : " + (c.Att + c.EqAtt) + (c.EqAtt == 0 ? "" : " (" + (c.EqAtt > 0 ? "+" : "") + c.EqAtt + ")") + "\n");
-                Console.WriteLine("방어력 : " + (c.Def + c.EqDef) + (c.EqDef == 0 ? "" : " (" + (c.EqDef > 0 ? "+" : "") + c.EqDef + ")") + "\n");
+                Console.Write("공격력 : ");
+                Console.Write(c.Att + c.EqAtt + c.LevelBonusAtt);
+                    if (c.EqAtt != 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.Write($" (+{c.EqAtt})");
+                            Console.ResetColor();
+                        }
+                    if (c.LevelBonusAtt != 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.Write($" (+{c.LevelBonusAtt})");
+                            Console.ResetColor();
+                        }
+                Console.WriteLine($"\n");
+                Console.Write("방어력 : ");
+                Console.Write(c.Def + c.EqDef + c.LevelBonusDef);
+                    if (c.EqDef != 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.Write($" (+{c.EqDef})");
+                            Console.ResetColor();
+                        }
+                    if (c.LevelBonusDef != 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.Write($" (+{c.LevelBonusDef})");
+                            Console.ResetColor();
+                        }
+                Console.WriteLine($"\n");
                 Console.WriteLine("체 력 : " + c.Health + " / " + c.MaxHealth + "\n");
                 Console.WriteLine("마 력 : " + c.Mana + " / " + c.MaxMana + "\n");
                 Console.WriteLine("Gold : " + c.Cash + " G\n");
@@ -994,7 +1030,7 @@ namespace TextRPGTeam
 
                     bool isEvaded = random.Next(0, 100) < foe.EvadeRate;
                     bool isCritical = random.Next(0, 100) < hero.CritRate;
-                    damage = (int)(hero.Att + hero.EqAtt) + random.Next(-1, 2);//공격력과 장비공격력을 더하고 오차 +-1의 데미지
+                    damage = (int)(hero.Att + hero.EqAtt + hero.LevelBonusAtt) + random.Next(-1, 2);//공격력과 장비공격력을 더하고 오차 +-1의 데미지
 
                     if (isEvaded) //몬스터 회피
                     {
@@ -1225,7 +1261,7 @@ namespace TextRPGTeam
 
             bool isEvaded = random.Next(0, 100) < foe.EvadeRate;
             bool isCritical = random.Next(0, 100) < hero.CritRate;
-            damage = (int)(hero.Att + hero.EqAtt) + random.Next(-1, 2);//공격력과 장비공격력을 더하고 오차 +-1의 데미지
+            damage = (int)(hero.Att + hero.EqAtt + hero.LevelBonusAtt) + random.Next(-1, 2);//공격력과 장비공격력을 더하고 오차 +-1의 데미지
             damage = (int)(damage * skill.Multiplier);
 
             if (isEvaded) //몬스터 회피
@@ -1276,7 +1312,7 @@ namespace TextRPGTeam
                 i++;
                 if (enemyHealth[i] <= 0) continue;
                 Console.Clear();
-                damage = enm.Att + random.Next(-1, 2);
+                damage = enm.Att - (int)(hero.Def + hero.EqDef + hero.LevelBonusDef) + random.Next(-1, 2);
                 hero.Health -= damage;
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.Write("\nBattle!!\n\n\n");
@@ -1407,9 +1443,8 @@ namespace TextRPGTeam
                 questMgr.OnLevelUp(hero.Level); // 레벨 퀘스트 확인용
                 hero.ExpToLevelUp += 30; //레벨업할수록 필요한 경험치 30씩 증가
 
-                //레벨업시
-                hero.Att += 1; //힘 1증가
-                hero.Def += 1; //방어 1증가
+                hero.LevelBonusAtt += 1;  // 레벨업 보너스만 누적
+                hero.LevelBonusDef += 1;
 
                 hero.Cash += 500; //캐쉬 500원
                 hero.Health = hero.MaxHealth;
