@@ -1,4 +1,4 @@
-using global::TextRPGTeam.QuestSystem;
+﻿using global::TextRPGTeam.QuestSystem;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -1144,6 +1144,8 @@ namespace TextRPGTeam
         }
         public static void BattleVictory(List<Monster> enemy, Character hero, QuestManager questMgr, Dungeon dungeon, PotionInven[] potionInventory ,Potion potion) //배틀 승리시 메소드
         {
+
+
             int currentDungeonLevel = dungeon.DungeonLevel;
             questMgr.OnDungeonCleared(currentDungeonLevel);
             lastClearedDungeonLevel = currentDungeonLevel;
@@ -1161,14 +1163,15 @@ namespace TextRPGTeam
             int totalExp = enemy.Count * 10; //몬스터 x 경험치10
             int totaICash = enemy.Count * 150; //몬스터 x 골드 150
             
+
             Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
             Console.WriteLine($"HP {hero.Health}/100\n\n"); 
-            Console.WriteLine("[클리어 보상]\n");
-
-            Treasure(enemy, potionInventory);  //포션 랜덤 함수
+            Console.WriteLine("[클리어 보상]\n");          
             Console.WriteLine($"경험치를 흭득하셨습니다:{totalExp}"); //승리시 경험치 흭득
-            // Console.WriteLine("장비"); // 일단 비활성화
+            Treasure(enemy, potionInventory);  //포션 랜덤 함수
+            // Console.WriteLine("장비"); // 우선 비활성화 처리
             Console.WriteLine($"골드를 획득하셨습니다: {totaICash}"); //골드 흭득
+
             Exp(hero, totalExp, questMgr);
             Console.Write("아무버튼이나 누르세요..");
             Console.ReadLine();
@@ -1202,6 +1205,7 @@ namespace TextRPGTeam
         //던전 클리어 보상 메소드
         public static void Treasure(List<Monster> mob, PotionInven[] potionInventory)
         {
+
             Random random = new Random();
             string redPotion = potionInventory[0].Potion.Name;
             string bluePotion = potionInventory[1].Potion.Name;
@@ -1600,6 +1604,9 @@ namespace TextRPGTeam
                     Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion);
                     return;
                 }
+                else if (Select >= 4) {
+                    PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion);
+                }
 
                 int selectedIndex = Select - 1;
                 if (selectedIndex >= 0 && selectedIndex < potionInventory.Length)
@@ -1610,7 +1617,7 @@ namespace TextRPGTeam
                     {
                         Console.WriteLine("\n포션이 부족합니다.");
                     }
-                    else
+                    
                     {
 
 
@@ -1634,9 +1641,6 @@ namespace TextRPGTeam
 
                         selectedPotion.Count--;
 
-                        Console.WriteLine($"\n{selectedPotion.potion.Name} 사용!");
-                        if (actualHeal > 0) Console.WriteLine($"체력 {actualHeal} 회복!");
-                        if (actualMana > 0) Console.WriteLine($"마나 {actualMana} 회복!");
                         PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion);
                     }
                 }
