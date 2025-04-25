@@ -111,6 +111,10 @@ namespace TextRPGTeam
         public int Heal;
         public int Mana;
         public int Value;
+        public int redPotion;
+        public int bluePotion;
+        public int highPotion;
+
 
         public Potion(string n, string d, int h, int m, int v) : this()
         {
@@ -131,6 +135,8 @@ namespace TextRPGTeam
         {
             potion = P;
             Count = c;
+ 
+
         }
     }
 
@@ -159,7 +165,7 @@ namespace TextRPGTeam
     {
         static int lastClearedDungeonLevel = 0; // 던전 클리어 레벨 기억용
 
-        static void Main(string[] args, Potion potion)
+        static void Main(string[] args)
         {
             Console.WriteLine("::::::::::: :::::::::: :::    ::: :::::::::::      :::::::::  :::::::::   ::::::::  ");
             Console.WriteLine("    :+:     :+:        :+:    :+:     :+:          :+:    :+: :+:    :+: :+:    :+: ");
@@ -220,7 +226,7 @@ namespace TextRPGTeam
             Potion redPotion = new Potion("빨강포션", "체력 30 회복", 30, 0, 100);
             Potion bluePotion = new Potion("파랑포션", "마나 50 회복", 0, 50, 70);
             Potion highPotion = new Potion("엘릭서", "체력&마나 100 회복", 100, 100, 1000);
-
+            Potion potion = new Potion();
             PotionInven[] potionInventory = { new PotionInven(redPotion, 3), new PotionInven(bluePotion, 0), new PotionInven(highPotion, 1) };
 
             List<Monster> mob = new List<Monster> {
@@ -308,7 +314,7 @@ namespace TextRPGTeam
                     Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n");
                 }
             }
-
+            
             Console.Clear();
 
             while (true) // 메인 화면
@@ -318,7 +324,7 @@ namespace TextRPGTeam
 
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
-
+                
                 switch (choice)
                 {
                     case 1:
@@ -1102,16 +1108,15 @@ namespace TextRPGTeam
 
             int totalExp = enemy.Count * 10; //몬스터 x 경험치10
             int totaICash = enemy.Count * 150; //몬스터 x 골드 150
-
-             Treasure(enemy, hero, questMgr, dungeon, potionInventory);
             
             Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
-            Console.WriteLine($"HP {hero.Health}/100\n\n");
-            Console.WriteLine($"경험치를 흭득하셨습니다:{totalExp}\n"); //승리시 경험치 흭득 
-            Console.WriteLine("[아이템 흭득]");
-            Console.WriteLine($"{potion.Name}");
+            Console.WriteLine($"HP {hero.Health}/100\n\n"); 
+            Console.WriteLine("[클리어 보상]\n");
+            Treasure(enemy, hero, questMgr, dungeon, potionInventory);  //포션 랜덤 함수
+            Console.WriteLine($"{potionInventory}를 획득했습니다!"); //포션 흭득
+            Console.WriteLine($"경험치를 흭득하셨습니다:{totalExp}"); //승리시 경험치 흭득
             Console.WriteLine("장비");
-            Console.WriteLine("골드");
+            Console.WriteLine($"골드를 획득하셨습니다: {totaICash}"); //골드 흭득
             Exp(hero, totalExp, questMgr);
             Console.Write("아무버튼이나 누르세요..");
             Console.ReadLine();
@@ -1146,25 +1151,39 @@ namespace TextRPGTeam
         {
             Random random = new Random();
 
-            int chance = random.Next(100); // 0~99
+            string redPotion = potionInventory[0].Potion.Name;
+            string bluePotion = potionInventory[1].Potion.Name;
+            string highPotion = potionInventory[2].Potion.Name;
 
-            if (chance < 60)
+            for (int i = 0; i < mob.Count; i++)
             {
-                AddPotion(potionInventory, potionInventory[0].Potion); // red포션
-            }
-            else if (chance < 90)
-            {
-                AddPotion(potionInventory, potionInventory[1].Potion); // blue포션
-            }
-            else
-            {
-                AddPotion(potionInventory, potionInventory[2].Potion); // high포션
-            }
+                int chance = random.Next(100); // 0~99
 
+                if (chance < 60)
+                {
+                    AddPotion(potionInventory, potionInventory[0].Potion); // red포션
+                }
+                else if (chance < 90)
+                {
+                    AddPotion(potionInventory, potionInventory[1].Potion); // blue포션
+                }
+                else
+                {
+                    AddPotion(potionInventory, potionInventory[2].Potion); // high포션
+                }             
+            }
             void AddPotion(PotionInven[] potionInventory, Potion potion)
-            {
-
-            }
+                {
+                    foreach (var inven in potionInventory)
+                    {
+                        if (inven.Potion.Name == potion.Name)
+                        {
+                            
+                            inven.Count++;                           
+                            return;
+                        }
+                    }
+                }
         }
         public static void Exp(Character hero, int exp, QuestManager questMgr)
         {
