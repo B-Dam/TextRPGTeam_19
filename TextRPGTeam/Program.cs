@@ -344,7 +344,7 @@ namespace TextRPGTeam
 
 
 
-                            Dungeon(mob, hero, dungeon, questMgr, potionInventory);
+                            Dungeon(mob, hero, dungeon, questMgr, potionInventory,hero);
 
                             break;
                         }
@@ -1147,43 +1147,7 @@ namespace TextRPGTeam
         //던전 클리어 보상 메소드
         public static void Treasure(List<Monster> mob, Character hero, QuestManager questMgr, Dungeon dungeon, PotionInven[] potionInventory)
         {
-            Random random = new Random();
-            int num = random.Next(1, 4); //랜덤 1~3나오게 설정
-
-            switch (num)
-            {
-                case 1:
-
-                    potionInventory.redPotion.Add(new Potion("빨강포션", "체력 30 회복", 30, 0, 100));
-                    Console.WriteLine("빨강 포션을 획득했습니다!");
-                    break;
-
-                case 2:
-                    potionInventory.bluePotion.Add(new Potion("파랑포션", "마나 50 회복", 0, 50, 70));
-                    Console.WriteLine("파랑 포션을 획득했습니다!");
-                    break;
-
-                case 3:
-                    potionInventory.highPotion.Add(new Potion("엘릭서", "체력/마나 100 회복", 100, 100, 1000));
-                    Console.WriteLine("엘릭서를 획득했습니다!");
-                    break;
-            }
-            int chance = random.Next(100);//확률 60%
-            if (chance < 60)
-            {
-                potionInventory.redPotion.Add(new Potion("빨강포션", "체력 30 회복", 30, 0, 100));
-                Console.WriteLine("빨강 포션을 획득했습니다!");
-            }
-            else if (chance < 90)//확률 30%
-            {
-                potionInventory.bluePotion.Add(new Potion("파랑포션", "마나 50 회복", 0, 50, 70));
-                Console.WriteLine("파랑 포션을 획득했습니다!");
-            }
-            else//확률 10%
-            {
-                potionInventory.highPotion.Add(new Potion("엘릭서", "체력/마나 100 회복", 100, 100, 1000));
-                Console.WriteLine("엘릭서를 획득했습니다!");
-            }
+           
         }
         public static void Exp(Character hero, int exp, QuestManager questMgr)
         {
@@ -1440,8 +1404,7 @@ namespace TextRPGTeam
 
 
 
-        public static void Dungeon(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr,PotionInven[] potionInventory)//던전  메서드
-
+        public static void Dungeon(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory, Character c)
         {
 
             Console.Clear();
@@ -1465,11 +1428,10 @@ namespace TextRPGTeam
             }
             else if (Select == 2)
             {
-                Battle(mob, hero, questMgr, dungeon, potionInventory);
+                Battle(mob, hero, questMgr,dungeon,potionInventory);
             }
             else if (Select == 3)
             {
-
 
                 PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
             }
@@ -1478,6 +1440,7 @@ namespace TextRPGTeam
             {
                 Console.WriteLine("잘못된입력");
             }
+
         }
         public static void PotionHeal(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory, Character c)
         {
@@ -1526,7 +1489,7 @@ namespace TextRPGTeam
 
                 if (Select == 0)
                 {
-                    Dungeon(mob, hero, dungeon, questMgr, potionInventory);
+                    Dungeon(mob, hero, dungeon, questMgr, potionInventory, c);
                     return;
                 }
 
@@ -1563,13 +1526,11 @@ namespace TextRPGTeam
 
                         selectedPotion.Count--;
 
-
+                        Console.WriteLine($"\n{selectedPotion.potion.Name} 사용!");
+                        if (actualHeal > 0) Console.WriteLine($"체력 {actualHeal} 회복!");
+                        if (actualMana > 0) Console.WriteLine($"마나 {actualMana} 회복!");
                         PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
                     }
-                }
-                else
-                {
-                    PotionHeal(mob, hero, dungeon, questMgr, potionInventory, c);
                 }
             }
         }
