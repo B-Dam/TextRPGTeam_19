@@ -1216,6 +1216,13 @@ namespace TextRPGTeam
                 if (choice == 0) { Console.Clear(); break; }
                 else if (choice > 0 && choice <= count)
                 {
+                    if (hero.Mana < hero.SkillSet[choice - 1].ManaConsume)
+                    {
+                        Console.Clear();
+                        
+                        continue;
+                        Console.WriteLine("MP가 부족합니다. 다른 스킬을 선택하세요.");
+                    }
                     if (hero.SkillSet[choice - 1].TargetNumber == -1)//전체공격 
                     {
                         for (int i = 0; i < enemy.Count; i++)
