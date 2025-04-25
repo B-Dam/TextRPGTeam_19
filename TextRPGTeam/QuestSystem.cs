@@ -29,7 +29,7 @@ namespace TextRPGTeam.QuestSystem
         public virtual void OnLevelUp(int newLevel) { }
         public virtual void OnEquipChanged(Item item, bool isEquipped) { }
         public virtual void OnMonsterKilled(string monsterType) { }
-        public virtual void OnDungeonCleared(string dungeonName) { }
+        public virtual void OnDungeonCleared(int dungeonLevel) { }
 
         // 퀘스트 수락 설정
         public void Accept()
@@ -82,6 +82,9 @@ namespace TextRPGTeam.QuestSystem
 
         public override void OnLevelUp(int newLevel)
         {
+            if (!IsAccepted || Status != QuestStatus.InProgress)
+                return;
+
             if (newLevel >= TargetLevel) // 레벨이 타겟 레벨 보다 높을 시 완료 처리.
                 Complete();
         }
@@ -101,6 +104,9 @@ namespace TextRPGTeam.QuestSystem
 
         public override void OnEquipChanged(Item item, bool isEquipped)
         {
+            if (!IsAccepted || Status != QuestStatus.InProgress)
+                return;
+
             if (item.Type.Equals(RequiredType, StringComparison.OrdinalIgnoreCase) // 지정된 타입의 장비를 장착 시 완료 처리.
                 && isEquipped)
             {
@@ -127,6 +133,9 @@ namespace TextRPGTeam.QuestSystem
 
         public override void OnMonsterKilled(string monsterName)
         {
+            if (!IsAccepted || Status != QuestStatus.InProgress)
+                return;
+
             if (Status != QuestStatus.InProgress) return;
             if (monsterName.Equals(MonsterName, StringComparison.OrdinalIgnoreCase)) // 지정된 몬스터 이름과 같다면
             {
@@ -144,18 +153,21 @@ namespace TextRPGTeam.QuestSystem
     // 던전 클리어 퀘스트
     public class DungeonQuest : Quest
     {
-        public string DungeonName { get; }
+        public int RequiredLevel { get; }
 
-        public DungeonQuest(int id, string title, string description,
-                            string dungeonName, Item reward)
+        public DungeonQuest(int id, string title,string description,
+                            int requiredLevel,Item reward)
             : base(id, title, description, reward)
         {
-            DungeonName = dungeonName;
+            RequiredLevel = requiredLevel;
         }
 
-        public override void OnDungeonCleared(string dungeonName)
+        public override void OnDungeonCleared(int dungeonLevel)
         {
-            if (dungeonName.Equals(DungeonName, StringComparison.OrdinalIgnoreCase))
+            if (!IsAccepted || Status != QuestStatus.InProgress)
+                return;
+
+            if (dungeonLevel >= RequiredLevel)
                 Complete();
         }
     }
@@ -170,14 +182,30 @@ namespace TextRPGTeam.QuestSystem
 
         public void AddQuest(Quest quest) => quests.Add(quest);
 
-        //id 로 퀘스트를 수락 처리(없으면 무시)
+        // id 로 퀘스트를 수락 처리(없으면 무시)
         public void AcceptQuest(int questId)
         {
             var q = quests.FirstOrDefault(x => x.Id == questId);
             if (q != null)
                 q.Accept();
         }
-        
+
+        // 추가: 수락 직후 과거 이벤트 일괄 처리 메서드 오버로딩 // 사실 그냥 AcceptQuest()는 없어져도 될 것 같습니다.
+        public void AcceptQuest(int questId, int currentLevel,IEnumerable<Item> equippedItems,int lastDungeonLevel)
+        {
+            var q = quests.FirstOrDefault(x => x.Id == questId);
+            if (q == null) return;
+            q.Accept();
+
+            // 이미 발생한 이벤트들 재발생 - 이미 클리어 한 상태로 퀘스트를 받을 경우 확인용.
+            OnLevelUp(currentLevel);
+
+            foreach (var it in equippedItems)
+                OnEquipChanged(it, true);
+
+            OnDungeonCleared(lastDungeonLevel);
+        }
+
         // id로 퀘스트를 포기 처리
         public void AbandonQuest(int questId)
         {
@@ -207,10 +235,10 @@ namespace TextRPGTeam.QuestSystem
         }
 
         // 던전 클리어 체크용 메서드
-        public void OnDungeonCleared(string dungeonName)
+        public void OnDungeonCleared(int dungeonLevel)
         {
             foreach (var q in quests)
-                q.OnDungeonCleared(dungeonName);
+                q.OnDungeonCleared(dungeonLevel);
         }
 
         // 완료된 퀘스트에 대해 보상 지급
@@ -224,7 +252,7 @@ namespace TextRPGTeam.QuestSystem
             }
         }
 
-        // 퀘스트 상태 출력
+        // 퀘스트 상태 출력, 아직 사용하는 곳 없음
         public void ShowQuestStatus()
         {
             Console.WriteLine("\n< 퀘스트 현황 >");
@@ -248,7 +276,7 @@ namespace TextRPGTeam.QuestSystem
 //questMgr.OnMonsterKilled(monster.Type);
 
 ////던전 클리어시
-//questMgr.OnDungeonCleared(currentDungeonName);
+//questMgr.OnDungeonCleared(currentDungeonLevel);
 
 ////퀘스트 진행도 확인 UI
 //questMgr.ShowQuestStatus();
