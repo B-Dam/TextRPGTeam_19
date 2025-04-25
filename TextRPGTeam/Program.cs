@@ -331,7 +331,7 @@ namespace TextRPGTeam
             while (true) // 메인 화면
             {
                 Console.WriteLine("\n" + hero.Name + "님, 다음은 무엇을 할지 선택해 주세요.\n\n");
-                Console.Write("1. 상태 보기\n2. 인벤토리\n3. 상점\n4. 던전입장\n5. 회복\n6. 퀘스트\n\n\n0. 캐릭터 직업 변경\n\n>>");
+                Console.Write("1. 상태 보기\n\n2. 인벤토리\n\n3. 상점\n\n4. 던전입장\n\n5. 회복\n\n6. 퀘스트\n\n\n0. 캐릭터 직업 변경\n\n>>");
 
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
@@ -340,43 +340,36 @@ namespace TextRPGTeam
                 {
                     case 0:
                         {
-                            Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
                             ChooseJob(ref hero, jobList);
                             break;
                         }
                     case 1:
                         {
-                            Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
                             Status(hero); //상태보기
                             break;
                         }
                     case 2:
                         {
-                            Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
                             Inven(inventory, hero, questMgr); //인벤보기
                             break;
                         }
                     case 3:
                         {
-                            Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
                             Store(shop, inventory, hero, potionInventory); // 상점가기
                             break;
                         }
                     case 4:
                         {
-                            Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
                             Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion);
                             break;
                         }
                     case 5:
                         {
-                            Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
                             Rest(hero, potionInventory); //회복 하기
                             break;
                         }
                     case 6:
                         {
-                            Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
                             ShowQuest(questMgr, hero, inventory);
                             break;
                         }
@@ -488,7 +481,7 @@ namespace TextRPGTeam
                 Console.ResetColor();
                 Console.WriteLine("\n보유 중인 아이템을 관리할 수 있습니다.\n\n\n[아이템 목록]\n");
                 ShowItem(Inventory, true);
-                Console.Write("\n1. 장착 관리\n\n2. 나가기\n\n원하시는 행동을 입력해주세요.\n>>");
+                Console.Write("\n1. 장착 관리\n\n0. 나가기\n\n원하시는 행동을 입력해주세요.\n>>");
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
                 switch (choice)
@@ -497,7 +490,7 @@ namespace TextRPGTeam
                     case 2: Console.WriteLine("나가기를 선택하셨습니다|\n"); break;
                     default: Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break;
                 }
-                if (choice == 2) { Console.Clear(); break; }
+                if (choice == 0) { Console.Clear(); break; }
             }
         }
         //인벤토리 보기
@@ -1295,7 +1288,7 @@ namespace TextRPGTeam
                 Console.ResetColor();
                 Console.WriteLine("1. 진행 중 퀘스트");
                 Console.WriteLine("2. 수락 가능한 퀘스트");
-                Console.WriteLine("\n0. 뒤로");
+                Console.WriteLine("\n0. 나가기");
                 Console.Write("\n원하시는 행동을 입력해주세요!\n>> ");
 
                 var choice = Console.ReadLine();
