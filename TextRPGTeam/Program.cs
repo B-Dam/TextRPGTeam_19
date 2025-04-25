@@ -243,7 +243,7 @@ namespace TextRPGTeam
             Console.Write("-시작하시려면 아무 키나 입력해주세요.");
             Console.ReadKey();
             Console.ResetColor();
-            
+
             Console.Clear();
 
             Character hero = new Character(); // 플레이어 정보
