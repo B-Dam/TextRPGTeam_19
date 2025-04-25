@@ -338,35 +338,31 @@ namespace TextRPGTeam
                     case 1:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            Status(hero);//상태보기
+                            Status(hero); //상태보기
                             break;
                         }
                     case 2:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            Inven(inventory, hero, questMgr);//인벤보기
+                            Inven(inventory, hero, questMgr); //인벤보기
                             break;
                         }
                     case 3:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            Store(shop, inventory, hero, potionInventory);// 상점가기
+                            Store(shop, inventory, hero, potionInventory); // 상점가기
                             break;
                         }
                     case 4:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-
-
-
-                            Dungeon(mob, hero, dungeon, questMgr, potionInventory,potion);
-
+                            Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion);
                             break;
                         }
                     case 5:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            Rest(hero, potionInventory);//회복 하기
+                            Rest(hero, potionInventory); //회복 하기
                             break;
                         }
                     case 6:
@@ -1504,37 +1500,36 @@ namespace TextRPGTeam
             Console.Clear();
 
             Console.WriteLine("스파르타 던전에 오신 여러분 환영합니다.\r\n이제 전투를 시작할 수 있습니다.");
-            Console.WriteLine("");
-            Console.WriteLine("0. 이전 화면");
-            Console.WriteLine("1. 상태 보기");
-            Console.WriteLine($"2. 전투 시작 (현재 진행 : {dungeon.DungeonLevel}층)");
-            Console.WriteLine("3. 회복 아이템");
-            Console.WriteLine("원하시는 행동을 입력해주세요.\r\n");
-            int Select = int.Parse(Console.ReadLine());
+            Console.WriteLine("\n1. 상태 보기");
+            Console.WriteLine($"\n2. 전투 시작 (현재 진행 : {dungeon.DungeonLevel}층)");
+            Console.WriteLine("\n3. 회복 아이템");
+            Console.WriteLine("\n\n0. 돌아가기");
+            Console.Write("\n\n원하시는 행동을 입력해주세요.\n>> ");
+            if (int.TryParse(Console.ReadLine(), out int select))
+            {
+                switch (select)
+                {
+                    case 0: Console.Clear(); break;
 
-            if (Select == 0)
-            {
-                Console.Clear();
-            }
-            else if (Select == 1)
-            {
-                Status(hero);
-            }
-            else if (Select == 2)
-            {
-                Battle(mob, hero, questMgr,dungeon,potionInventory,potion);
-            }
-            else if (Select == 3)
-            {
+                    case 1: Status(hero); break;
 
-                PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion);
-            }
+                    case 2: Battle(mob, hero, questMgr, dungeon, potionInventory, potion); break;
 
+                    case 3: PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion); break;
+
+                    default:
+                        Console.WriteLine("정확히 입력해주세요.\n계속하려면 아무 키나 누르세요.");
+                        Console.ReadKey();
+                        Console.Clear(); Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion);
+                        break;
+                }
+            }
             else
             {
-                Console.WriteLine("잘못된입력");
+                Console.WriteLine("정확히 입력해주세요.\n계속하려면 아무 키나 누르세요.");
+                Console.ReadKey();
+                Console.Clear(); Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion);
             }
-
         }
         public static void PotionHeal(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory, Potion potion)
         {
