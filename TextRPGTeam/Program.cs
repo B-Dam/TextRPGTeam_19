@@ -309,12 +309,16 @@ namespace TextRPGTeam
             PotionInven[] potionInventory = { new PotionInven(redPotion, 3), new PotionInven(bluePotion, 0), new PotionInven(highPotion, 1) };
             
             List<Monster> mob = new List<Monster> {
-                    new Monster(2,"미니언",15,5),
-                    new Monster(3,"공허충",10,9),
-                    new Monster(5,"대포미니언",25,8)
+                    new Monster(2,"슬라임",7,5),
+                    new Monster(3,"고블린",,9),
+                    new Monster(4,"리자드맨",30,7),
+                    new Monster(5,"불곰",40,17),
+                    new Monster(6,"자이언트 슬라임",100,13),
+                    new Monster(7,"켄타우로스",140,11),
+                    new Monster(8,"황금고블린",30,40)
                 };
             List<Monster> boss = new List<Monster> {
-                    new Monster(10,"용",250,10)
+                    new Monster(10,"드래곤",250,25)
                 };
 
 
