@@ -161,6 +161,7 @@ namespace TextRPGTeam
 
         static void Main(string[] args)
         {
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("::::::::::: :::::::::: :::    ::: :::::::::::      :::::::::  :::::::::   ::::::::  ");
             Console.WriteLine("    :+:     :+:        :+:    :+:     :+:          :+:    :+: :+:    :+: :+:    :+: ");
             Console.WriteLine("    +:+     +:+         +:+  +:+      +:+          +:+    +:+ +:+    +:+ +:+        ");
@@ -168,6 +169,7 @@ namespace TextRPGTeam
             Console.WriteLine("    +#+     +#+         +#+  +#+      +#+          +#+    +#+ +#+        +#+   +#+# ");
             Console.WriteLine("    #+#     #+#        #+#    #+#     #+#          #+#    #+# #+#        #+#     +# ");
             Console.WriteLine("    ###     ########## ###    ###     ###          ###    ### ###         ########  ");
+            Console.ResetColor();
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("-시작하시려면 아무 키나 입력해주세요.");
@@ -198,8 +200,8 @@ namespace TextRPGTeam
             Class[] job = // 직업
                 [
                      new Class("전사", "전사입니다.", 10, 5,100,50, warrior),
-                         new Class("도적", "도적입니다.", 15, 3, 80, 50, thief),
-                         new Class("마법사", "마법사입니다.", 8, 6, 70, 100, magicion)
+                     new Class("도적", "도적입니다.", 15, 3, 80, 50, thief),
+                     new Class("마법사", "마법사입니다.", 8, 6, 70, 100, magicion)
                 ];
 
             Class[] jobList = new Class[] // 직업 재선택
