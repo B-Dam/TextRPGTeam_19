@@ -5,6 +5,8 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks.Dataflow;
 using TextRPGTeam.QuestSystem; // using문 추가
+using System.Media;
+using System.Threading;
 
 namespace TextRPGTeam
 {
@@ -197,8 +199,36 @@ namespace TextRPGTeam
     {
         static int lastClearedDungeonLevel = 0; // 던전 클리어 레벨 기억용
 
+        //bgm 관리 매니저
+        public static class SoundManager
+        {
+            private static string basePath = @"C:\Users\mincho\OneDrive\문서\GitHub\TextRPGTeam_19\TextRPGTeam\Assets\";
+            private static SoundPlayer bgmPlayer;
+
+            //배경 사운드
+            public static void PlayBGM(string fileName)
+            {
+                string path = basePath + fileName;
+                bgmPlayer = new SoundPlayer(path);
+                bgmPlayer.PlayLooping();
+            }
+
+            //효과음
+            public static void PlaySLT(string fileName)
+            {
+                string path = basePath + fileName;
+
+                new Thread(() =>
+                {
+                    SoundPlayer slt = new SoundPlayer(path);
+                    slt.PlaySync();
+                }).Start();
+            }
+        }
         static void Main(string[] args)
         {
+            SoundManager.PlayBGM("Cheerful Title Screen.wav");
+
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("::::::::::: :::::::::: :::    ::: :::::::::::      :::::::::  :::::::::   ::::::::  ");
             Console.WriteLine("    :+:     :+:        :+:    :+:     :+:          :+:    :+: :+:    :+: :+:    :+: ");
@@ -213,6 +243,7 @@ namespace TextRPGTeam
             Console.Write("-시작하시려면 아무 키나 입력해주세요.");
             Console.ReadKey();
             Console.ResetColor();
+            
             Console.Clear();
 
             Character hero = new Character(); // 플레이어 정보
