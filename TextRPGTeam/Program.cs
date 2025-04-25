@@ -1147,7 +1147,43 @@ namespace TextRPGTeam
         //던전 클리어 보상 메소드
         public static void Treasure(List<Monster> mob, Character hero, QuestManager questMgr, Dungeon dungeon, PotionInven[] potionInventory)
         {
-           
+            Random random = new Random();
+            int num = random.Next(1, 4); //랜덤 1~3나오게 설정
+
+            switch (num)
+            {
+                case 1:
+
+                    potionInventory.redPotion.Add(new Potion("빨강포션", "체력 30 회복", 30, 0, 100));
+                    Console.WriteLine("빨강 포션을 획득했습니다!");
+                    break;
+
+                case 2:
+                    potionInventory.bluePotion.Add(new Potion("파랑포션", "마나 50 회복", 0, 50, 70));
+                    Console.WriteLine("파랑 포션을 획득했습니다!");
+                    break;
+
+                case 3:
+                    potionInventory.highPotion.Add(new Potion("엘릭서", "체력/마나 100 회복", 100, 100, 1000));
+                    Console.WriteLine("엘릭서를 획득했습니다!");
+                    break;
+            }
+            int chance = random.Next(100);//확률 60%
+            if (chance < 60)
+            {
+                potionInventory.redPotion.Add(new Potion("빨강포션", "체력 30 회복", 30, 0, 100));
+                Console.WriteLine("빨강 포션을 획득했습니다!");
+            }
+            else if (chance < 90)//확률 30%
+            {
+                potionInventory.bluePotion.Add(new Potion("파랑포션", "마나 50 회복", 0, 50, 70));
+                Console.WriteLine("파랑 포션을 획득했습니다!");
+            }
+            else//확률 10%
+            {
+                potionInventory.highPotion.Add(new Potion("엘릭서", "체력/마나 100 회복", 100, 100, 1000));
+                Console.WriteLine("엘릭서를 획득했습니다!");
+            }
         }
         public static void Exp(Character hero, int exp, QuestManager questMgr)
         {
@@ -1173,6 +1209,14 @@ namespace TextRPGTeam
                 hero.Def += 1; //방어 1증가
                 hero.Health = 100; //체력 100회복
                 hero.Cash += 500; //캐쉬 500원
+                if (hero.Health > hero.MaxHealth)
+                {
+                    hero.Health = hero.MaxHealth;
+                }
+                if (hero.Mana > hero.MaxMana)
+                {
+                    hero.Mana = hero.MaxMana;
+                }
 
                 Console.WriteLine($"\n레벨업! {hero.Level}레벨이 되었습니다.");
                 Console.WriteLine("공격력이 1 올랐습니다!\n방어력이 1 올랐습니다!\n500 G를 획득했습니다!");
@@ -1402,7 +1446,7 @@ namespace TextRPGTeam
         }
         // 퀘스트 관련 메서드 끝 --------------------------------------------------------------------
 
-
+        // 던전 관련 메서드 끝 --------------------------------------------------------------------
 
         public static void Dungeon(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory, Character c)
         {
@@ -1534,5 +1578,6 @@ namespace TextRPGTeam
                 }
             }
         }
+        // 던전 관련 메서드 끝 --------------------------------------------------------------------
     }
 }
