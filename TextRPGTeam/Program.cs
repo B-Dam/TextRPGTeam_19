@@ -159,7 +159,7 @@ namespace TextRPGTeam
     {
         static int lastClearedDungeonLevel = 0; // 던전 클리어 레벨 기억용
 
-        static void Main(string[] args, Potion potion)
+        static void Main(string[] args)
         {
             Console.WriteLine("::::::::::: :::::::::: :::    ::: :::::::::::      :::::::::  :::::::::   ::::::::  ");
             Console.WriteLine("    :+:     :+:        :+:    :+:     :+:          :+:    :+: :+:    :+: :+:    :+: ");
@@ -177,6 +177,7 @@ namespace TextRPGTeam
 
             Character hero = new Character(); // 플레이어 정보
             Dungeon dungeon = new Dungeon();
+            Potion potion = new Potion();
 
             Skill[] warrior =
             {
