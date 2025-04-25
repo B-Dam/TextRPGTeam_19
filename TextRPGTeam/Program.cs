@@ -345,7 +345,7 @@ namespace TextRPGTeam
             
             List<Monster> mob = new List<Monster> {
                     new Monster(2,"슬라임",7,5),
-                    new Monster(3,"고블린",,9),
+                    new Monster(3,"고블린",4,9),
                     new Monster(4,"리자드맨",30,7),
                     new Monster(5,"불곰",40,17),
                     new Monster(6,"자이언트 슬라임",100,13),
