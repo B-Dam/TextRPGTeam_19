@@ -206,63 +206,32 @@ namespace TextRPGTeam
         //bgm 관리 매니저
         public static class SoundManager
         {
-            // 실행 중인 .exe 기준으로 "Music" 폴더를 참조
-            private static readonly string BasePath =
-    Path.GetFullPath(Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "..", "..", "..", "..", "Music"));
+            private static string basePath = @"Assets\";
+            private static SoundPlayer bgmPlayer;
 
-            private static SoundPlayer _bgmPlayer;
-            private static readonly object _bgmLock = new object();
-
-            /// <summary>
-            /// Music 폴더 내 파일명을 넘기면 자동으로 절대경로를 만들어 루프 재생
-            /// </summary>
+            //배경 사운드
             public static void PlayBGM(string fileName)
             {
-                var fullPath = Path.Combine(BasePath, fileName);
-                if (!File.Exists(fullPath))
-                    throw new FileNotFoundException($"BGM 파일이 없습니다: {fullPath}");
-
-                lock (_bgmLock)
-                {
-                    _bgmPlayer?.Stop();
-                    _bgmPlayer?.Dispose();
-                    _bgmPlayer = new SoundPlayer(fullPath);
-                    _bgmPlayer.PlayLooping();
-                }
+                string path = basePath + fileName;
+                bgmPlayer = new SoundPlayer(path);
+                bgmPlayer.PlayLooping();
             }
 
-            /// <summary>
-            /// 현재 재생 중인 BGM 정지
-            /// </summary>
-            public static void StopBGM()
+            //효과음
+            public static void PlaySLT(string fileName)
             {
-                lock (_bgmLock)
-                {
-                    _bgmPlayer?.Stop();
-                    _bgmPlayer?.Dispose();
-                    _bgmPlayer = null;
-                }
-            }
+                string path = basePath + fileName;
 
-            /// <summary>
-            /// Music 폴더 내 파일명을 넘겨 비동기 효과음 재생
-            /// </summary>
-            public static void PlaySFX(string fileName)
-            {
-                var fullPath = Path.Combine(BasePath, fileName);
-                if (!File.Exists(fullPath))
-                    throw new FileNotFoundException($"SFX 파일이 없습니다: {fullPath}");
-
-                Task.Run(() =>
+                new Thread(() =>
                 {
-                    using (var player = new SoundPlayer(fullPath))
-                        player.PlaySync();
-                });
+                    SoundPlayer slt = new SoundPlayer(path);
+                    slt.PlaySync();
+                }).Start();
             }
         }
         static void Main(string[] args)
         {
-            SoundManager.PlayBGM("1.wav");
+            SoundManager.PlayBGM("Cheerful Title Screen.wav");
 
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("::::::::::: :::::::::: :::    ::: :::::::::::      :::::::::  :::::::::   ::::::::  ");
