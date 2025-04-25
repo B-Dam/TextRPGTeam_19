@@ -264,7 +264,7 @@ namespace TextRPGTeam
              title: "무기 장착",
              description: "아무 무기나 장착하세요.",
              requiredType: "weapon",
-             reward: new Item("보상 아이템 이름", "보상 아이템 설명.", 0, 0, 100, "아이템 타입")
+             reward: new Item("낡은 검", "쉽게 볼 수 있는 낡은 검 입니다.", 2, 0, 600, "weapon")
             ));
 
             questMgr.AddQuest(new KillQuest(
@@ -273,23 +273,32 @@ namespace TextRPGTeam
                 description: "던전에서 미니언을 2마리 처치하세요.",
                 monsterName: "미니언",
                 requiredCount: 2,
-                reward: new Item("아이템 이름", "아이템 설명.", 0, 0, 0, "아이템 타입")
+                reward: new Item("낡은 검", "쉽게 볼 수 있는 낡은 검 입니다.", 2, 0, 600, "weapon")
             ));
 
             questMgr.AddQuest(new LevelQuest(
                 id: 3,
-                title: "레벨 업! 2 레벨!",
-                description: "2레벨을 달성해보세요!",
-                targetLevel: 2,
-                reward: new Item("짱 좋은 아이템", "짱 좋은 아이템이에요!", 0, 0, 10000, "아이템 타입")
+                title: "레벨 업! 3 레벨!",
+                description: "3레벨을 달성해보세요!",
+                targetLevel: 3,
+                reward: new Item("금괴 덩어리", "착용 할 수는 있지만 능력치는 없습니다.. 상점에 팔면 비싸게 팔릴지도?", 0, 0, 3000, "gold")
             ));
 
             questMgr.AddQuest(new DungeonQuest(
                 id: 4,
-                title: "던전 2층 클리어!",
-                description: "던전 2층을 클리어 해보세요!",
-                requiredLevel: 2,
-                reward: new Item("짱 좋은 아이템", "짱 좋은 아이템이에요!", 0, 0, 10000, "아이템 타입")
+                title: "던전 5층 클리어!",
+                description: "던전 5층을 클리어 해보세요!",
+                requiredLevel: 5,
+                reward: new Item("다이아몬드", "착용 할 수는 있지만 능력치는 없습니다.. 상점에 팔면 비싸게 팔릴지도?", 0, 0, 5000, "gold")
+            ));
+
+            questMgr.AddQuest(new KillQuest(
+                id: 5,
+                title: "용을 처치하라!",
+                description: "던전의 매 5층마다 도사리고 있는 용을 처치하세요!",
+                monsterName: "용",
+                requiredCount: 1,
+                reward: new Item("다이아몬드 더미", "착용 할 수는 있지만 능력치는 없습니다.. 상점에 팔면 비싸게 팔릴지도?", 0, 0, 10000, "gold")
             ));
 
             int choice;
@@ -1313,7 +1322,7 @@ namespace TextRPGTeam
                 if (enemyHealth[i] <= 0) continue;
                 Console.Clear();
                 damage = enm.Att - (int)(hero.Def + hero.EqDef + hero.LevelBonusDef) + random.Next(-1, 2);
-                hero.Health -= damage;
+                hero.Health -= Math.Max(damage,0);
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.Write("\nBattle!!\n\n\n");
                 Console.ResetColor();
@@ -1559,11 +1568,12 @@ namespace TextRPGTeam
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.Write(" 됩니다! 주의하세요!\n\n");
                 Console.ResetColor();
-                Console.WriteLine($"제목: {quest.Title}\n");
-                Console.WriteLine($"설명: {quest.Description}\n");
-                Console.WriteLine($"상태: [{statusKor}]");
+                Console.WriteLine($"제목 : {quest.Title}\n");
+                Console.WriteLine($"설명 : {quest.Description}\n");
+                Console.WriteLine($"상태 : [{statusKor}]\n");
+                Console.WriteLine($"보상 : {quest.Reward.Name} | {quest.Reward.Description}");
                 if (quest is KillQuest kq)
-                    Console.WriteLine($"\n진행도: {kq.Progress}/{kq.RequiredCount}");
+                    Console.WriteLine($"\n진행도 : {kq.Progress}/{kq.RequiredCount}");
 
                 if (quest.Status == QuestStatus.Completed)
                 {
@@ -1666,7 +1676,8 @@ namespace TextRPGTeam
                 Console.WriteLine($"제목 : {quest.Title}\n");
                 Console.WriteLine($"설명 : {quest.Description}\n");
                 if (quest is KillQuest kq)
-                    Console.WriteLine($"\n진행도 : {kq.Progress}/{kq.RequiredCount}");
+                    Console.WriteLine($"진행도 : {kq.Progress}/{kq.RequiredCount}\n");
+                Console.WriteLine($"보상 : {quest.Reward.Name} | {quest.Reward.Description}");
 
                 Console.WriteLine("\n\n1. 수락");
                 Console.WriteLine("\n0. 돌아가기");
