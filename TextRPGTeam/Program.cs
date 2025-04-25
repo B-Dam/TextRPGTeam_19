@@ -70,10 +70,10 @@ namespace TextRPGTeam
         public bool TargetRandom;//타겟팅 랜덤
         public float Multiplier;//데미지 배율
         public int ManaConsume;//소비마나
-        public Skill(string n,string d, int t,bool tr,float m, int mc):this()
+        public Skill(string n, string d, int t, bool tr, float m, int mc) : this()
         {
-            Name= n;
-            Description= d;
+            Name = n;
+            Description = d;
             TargetNumber = t;
             TargetRandom = tr;
             Multiplier = m;
@@ -111,6 +111,7 @@ namespace TextRPGTeam
         public int Heal;
         public int Mana;
         public int Value;
+
         public Potion(string n, string d, int h, int m, int v) : this()
         {
             Name = n;
@@ -122,11 +123,10 @@ namespace TextRPGTeam
     }
 
     class PotionInven()
-
     {
-        PotionInven[] potionInventory;
         public Potion potion;
         public int Count;
+        public Potion Potion;
         public PotionInven(Potion P, int c) : this()
         {
             potion = P;
@@ -221,13 +221,14 @@ namespace TextRPGTeam
             Potion bluePotion = new Potion("파랑포션", "마나 50 회복", 0, 50, 70);
             Potion highPotion = new Potion("엘릭서", "체력&마나 100 회복", 100, 100, 1000);
 
-            PotionInven[] potionInventory = { new PotionInven(redPotion, 3), new PotionInven(bluePotion, 0), new PotionInven(highPotion, 1)};
+            PotionInven[] potionInventory = { new PotionInven(redPotion, 3), new PotionInven(bluePotion, 0), new PotionInven(highPotion, 1) };
 
             List<Monster> mob = new List<Monster> {
                     new Monster(2,"미니언",15,5),
                     new Monster(3,"공허충",10,9),
                     new Monster(5,"대포미니언",25,8)
                 };
+
 
             var questMgr = new QuestManager(); // 퀘스트 매니저 추가
 
@@ -357,7 +358,7 @@ namespace TextRPGTeam
                     case 6:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            ShowQuest(questMgr,hero, inventory);
+                            ShowQuest(questMgr, hero, inventory);
                             break;
                         }
                     default:
@@ -812,7 +813,7 @@ namespace TextRPGTeam
         }
         //휴식
 
-        public static void Battle(List<Monster> mob, Character hero, QuestManager questMgr, Dungeon dungeon,PotionInven[] potionInventory)//배틀 메소드
+        public static void Battle(List<Monster> mob, Character hero, QuestManager questMgr, Dungeon dungeon, PotionInven[] potionInventory)//배틀 메소드
         {
             bool allDead;
             Random random = new Random();
@@ -857,8 +858,8 @@ namespace TextRPGTeam
                     }
                     i++;
                 }
-                
-                if (allDead) { Console.Clear(); BattleVictory(enemy,hero,questMgr,dungeon,potionInventory); Console.Clear(); break; }
+
+                if (allDead) { Console.Clear(); BattleVictory(enemy, hero, questMgr, dungeon, potionInventory); Console.Clear(); break; }
 
                 Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/{hero.MaxHealth}\n\nMP {hero.Mana}/{hero.MaxMana}\n\n");
                 Console.Write("\n1. 공격\n2.스킬\n\n원하시는 행동을 입력해주세요.\n>>");
@@ -1083,7 +1084,7 @@ namespace TextRPGTeam
                 }
             }
         }
-        public static void BattleVictory(List<Monster> enemy, Character hero, QuestManager questMgr, Dungeon dungeon , PotionInven[] potionInventory) //배틀 승리시 메소드
+        public static void BattleVictory(List<Monster> enemy, Character hero, QuestManager questMgr, Dungeon dungeon, PotionInven[] potionInventory) //배틀 승리시 메소드
         {
             int currentDungeonLevel = dungeon.DungeonLevel;
             questMgr.OnDungeonCleared(currentDungeonLevel);
@@ -1148,41 +1149,47 @@ namespace TextRPGTeam
         public static void Treasure(List<Monster> mob, Character hero, QuestManager questMgr, Dungeon dungeon, PotionInven[] potionInventory)
         {
             Random random = new Random();
-            int num = random.Next(1, 4); //랜덤 1~3나오게 설정
+            int num = random.Next(1, 4); // 1~3
 
             switch (num)
             {
                 case 1:
-
-                    potionInventory.redPotion.Add(new Potion("빨강포션", "체력 30 회복", 30, 0, 100));
-                    Console.WriteLine("빨강 포션을 획득했습니다!");
+                    AddPotion(potionInventory, potionInventory[0].Potion); // red포션
                     break;
-
                 case 2:
-                    potionInventory.bluePotion.Add(new Potion("파랑포션", "마나 50 회복", 0, 50, 70));
-                    Console.WriteLine("파랑 포션을 획득했습니다!");
+                    AddPotion(potionInventory, potionInventory[1].Potion); // blue포션
                     break;
-
                 case 3:
-                    potionInventory.highPotion.Add(new Potion("엘릭서", "체력/마나 100 회복", 100, 100, 1000));
-                    Console.WriteLine("엘릭서를 획득했습니다!");
+                    AddPotion(potionInventory, potionInventory[2].Potion); // high포션
                     break;
             }
-            int chance = random.Next(100);//확률 60%
+
+            int chance = random.Next(100); // 0~99
+
             if (chance < 60)
             {
-                potionInventory.redPotion.Add(new Potion("빨강포션", "체력 30 회복", 30, 0, 100));
-                Console.WriteLine("빨강 포션을 획득했습니다!");
+                AddPotion(potionInventory, potionInventory[0].Potion); // red포션
             }
-            else if (chance < 90)//확률 30%
+            else if (chance < 90)
             {
-                potionInventory.bluePotion.Add(new Potion("파랑포션", "마나 50 회복", 0, 50, 70));
-                Console.WriteLine("파랑 포션을 획득했습니다!");
+                AddPotion(potionInventory, potionInventory[1].Potion); // blue포션
             }
-            else//확률 10%
+            else
             {
-                potionInventory.highPotion.Add(new Potion("엘릭서", "체력/마나 100 회복", 100, 100, 1000));
-                Console.WriteLine("엘릭서를 획득했습니다!");
+                AddPotion(potionInventory, potionInventory[2].Potion); // high포션
+            }
+
+            void AddPotion(PotionInven[] potionInventory, Potion potion)
+            {
+                foreach (var inven in potionInventory)
+                {
+                    if (inven.Potion.Name == potion.Name)
+                    {
+                        inven.Count++;
+                        Console.WriteLine($"{potion.Name}를 획득했습니다!");
+                        return;
+                    }
+                }
             }
         }
         public static void Exp(Character hero, int exp, QuestManager questMgr)
@@ -1251,7 +1258,7 @@ namespace TextRPGTeam
             }
         }
 
-        static void ShowInProgress(QuestManager qm,Character c, List<Item> inventory)
+        static void ShowInProgress(QuestManager qm, Character c, List<Item> inventory)
         {
             static void PrintColor(string message, ConsoleColor color)
             {
@@ -1368,7 +1375,7 @@ namespace TextRPGTeam
             }
         }
 
-        static void ShowAvailable(QuestManager qm,Character c, List<Item> inv)
+        static void ShowAvailable(QuestManager qm, Character c, List<Item> inv)
         {
             static void PrintColor(string message, ConsoleColor color)
             {
@@ -1440,6 +1447,7 @@ namespace TextRPGTeam
             }
         }
         // 퀘스트 관련 메서드 끝 --------------------------------------------------------------------
+
 
         // 던전 관련 메서드  --------------------------------------------------------------------
 
@@ -1572,7 +1580,7 @@ namespace TextRPGTeam
                     }
                 }
             }
-        }
+        }      
         // 던전 관련 메서드 끝 --------------------------------------------------------------------
     }
 }
