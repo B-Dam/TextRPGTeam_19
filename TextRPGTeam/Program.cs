@@ -414,6 +414,17 @@ namespace TextRPGTeam
                     jobChoice >= 1 && jobChoice <= jobList.Length)
                 {
                     Class selected = jobList[jobChoice - 1];
+
+                    if (selected.Name == hero.Class)
+                    {
+                        Console.Write("\n이미 선택된 직업 입니다!");
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.Write(" 다른 직업을 선택해주세요.\n");
+                        Console.ResetColor();
+                        Console.ReadKey();
+                        continue;
+                    }
+
                     hero.Class = selected.Name;
                     hero.Att = selected.Att;
                     hero.Def = selected.Def;
@@ -421,14 +432,14 @@ namespace TextRPGTeam
                     hero.Mana = selected.Mana;
                     hero.MaxHealth = selected.Health;
                     hero.MaxMana = selected.Mana;
-                    //hero.SkillSet = selected.SkillSet;
+                    hero.SkillSet = selected.SkillSet;
 
                     Console.Write("\n직업이");
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.Write($"'{hero.Class}'");
                     Console.ResetColor();
                     Console.Write("(으)로 변경되었습니다.");
-                    Console.WriteLine("\n아무 키나 누르시면 메인 화면으로 돌아갑니다.");
+                    Console.WriteLine("\n아무 버튼이나 누르면 메인 화면으로 돌아갑니다.");
                     Console.ReadKey();
                     Console.Clear();
                     break;
