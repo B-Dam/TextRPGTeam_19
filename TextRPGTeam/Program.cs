@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks.Dataflow;
 using TextRPGTeam.QuestSystem; // using문 추가
 
 namespace TextRPGTeam
 {
-    public class Item() // 아이템 클래스 퍼블릭으로 변경!
+    public class Item // 아이템 클래스 퍼블릭으로 변경!
     {
         public string Name;
         public string Description;
@@ -16,8 +17,12 @@ namespace TextRPGTeam
         public bool Equip;
         public int Value;
         public string Type; // 착용 부위
+        public int Count;
+        public int inventory;
 
-        public Item(string name, string description, int att, int def, int value, string type, bool equip = false) : this()
+
+
+        public Item(string name, string description, int att, int def, int value, string type, bool equip = false)
         {
             Name = name;
             Description = description;
@@ -29,6 +34,7 @@ namespace TextRPGTeam
         }
     }
     // 아이템
+
 
     struct Class()
     {
@@ -104,6 +110,7 @@ namespace TextRPGTeam
         public int CritRate = 15; // 치명타 확률
         public float CritMultiplier = 1.6f; // 치명타 배율
         public Skill[] SkillSet;
+        public List<Item> Inventory;
     }
     // 플레이어
 
@@ -144,7 +151,27 @@ namespace TextRPGTeam
 
         }
     }
+    class Weapon
+    {
+        public string Name;
 
+        public Weapon(string name)
+        {
+            Name = name;
+        }
+    }
+
+    class WeaponInven
+    {
+        public Weapon weapon;
+        public int Count;
+
+        public WeaponInven(Weapon weapon, int count)
+        {
+            this.weapon = weapon;
+            this.Count = count;
+        }
+    }
     struct Monster()
     {
         public int Level;
@@ -191,6 +218,7 @@ namespace TextRPGTeam
             Character hero = new Character(); // 플레이어 정보
             Dungeon dungeon = new Dungeon();
             Potion potion = new Potion();
+            
 
 
             Skill[] warrior =
@@ -248,11 +276,14 @@ namespace TextRPGTeam
             Potion bluePotion = new Potion("파랑포션", "마나 50 회복", 0, 50, 70);
             Potion highPotion = new Potion("엘릭서", "체력&마나 100 회복", 100, 100, 1000);
             PotionInven[] potionInventory = { new PotionInven(redPotion, 3), new PotionInven(bluePotion, 0), new PotionInven(highPotion, 1) };
-
+            
             List<Monster> mob = new List<Monster> {
                     new Monster(2,"미니언",15,5),
                     new Monster(3,"공허충",10,9),
                     new Monster(5,"대포미니언",25,8)
+                };
+            List<Monster> boss = new List<Monster> {
+                    new Monster(10,"용",250,10)
                 };
 
 
@@ -379,7 +410,7 @@ namespace TextRPGTeam
                         }
                     case 4:
                         {
-                            Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion);
+                            Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion, shop, shop, inventory, boss);
                             break;
                         }
                     case 5:
@@ -935,67 +966,134 @@ namespace TextRPGTeam
         }
         //휴식
 
-        public static void Battle(List<Monster> mob, Character hero, QuestManager questMgr, Dungeon dungeon, PotionInven[] potionInventory, Potion potion)//배틀 메소드
+        public static void Battle(List<Monster> mob, Character hero, QuestManager questMgr, Dungeon dungeon, PotionInven[] potionInventory, Potion potion, List<Item> shop, List<Item> items, List<Item> Inventory, List<Monster> boss)//배틀 메소드
         {
             bool allDead;
             Random random = new Random();
-            int mobCount = random.Next(dungeon.DungeonLevel, dungeon.DungeonLevel + 1);//몬스터 생성 마릿수
-            int[] enemyHealth = new int[mobCount];//몬스터 체력 저장 변수, class는 같은 종류의 몬스터들의 체력을 하나로 보아 필요
-            int i;
-            List<Monster> enemy = new List<Monster> { };//전투시의 적 리스트
-
-            for (i = 0; i < mobCount; i++)
+            if (dungeon.DungeonLevel % 5 == 0)
+                //보스 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
             {
-                enemy.Add(mob[random.Next(0, mob.Count)]);//mob리스트 안의 몬스터를 랜덤으로 enemy에 추가
-                enemyHealth[i] = enemy[i].Hp;
-            }
-            int choice;
+                int mobCount = random.Next(dungeon.DungeonLevel/5, dungeon.DungeonLevel/5 + 1);//몬스터 생성 마릿수
+                int[] enemyHealth = new int[mobCount];//몬스터 체력 저장 변수, class는 같은 종류의 몬스터들의 체력을 하나로 보아 필요
+                int i;
+                List<Monster> enemy = new List<Monster> { };//전투시의 적 리스트
 
-
-            while (true)
-            {
-                Console.Clear();
-                if (hero.Health <= 0)
+                for (i = 0; i < mobCount; i++)
                 {
-                    Console.WriteLine("\n현재 체력이 없습니다. 마을로 돌아갑니다...\n");
-                    break;
+                    enemy.Add(boss[random.Next(0, boss.Count)]);//mob리스트 안의 몬스터를 랜덤으로 enemy에 추가
+                    enemyHealth[i] = enemy[i].Hp;
                 }
-                allDead = true;
-                Console.ForegroundColor = ConsoleColor.DarkYellow;
-                Console.WriteLine("\nBattle!!\n\n");
-                Console.ResetColor();
-                i = 0;
-                foreach (Monster enm in enemy)
+                int choice;
+                while (true)
                 {
-                    if (enemyHealth[i] > 0)
+                    Console.Clear();
+                    if (hero.Health <= 0)
                     {
-                        Console.WriteLine($"  Lv.{enm.Level}  {PadRightForConsole(enm.Name, 15)}HP {enemyHealth[i]}");
-                        allDead = false;
+                        Console.WriteLine("\n현재 체력이 없습니다. 마을로 돌아갑니다...\n");
+                        break;
                     }
-                    else
+                    allDead = true;
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine("\nBattle!!\n\n");
+                    Console.ResetColor();
+                    i = 0;
+                    foreach (Monster enm in enemy)
                     {
-                        Console.ForegroundColor = ConsoleColor.DarkGray;
-                        Console.WriteLine($"  Lv.{enm.Level}  {PadRightForConsole(enm.Name, 15)}Dead");
-                        Console.ResetColor();
+                        if (enemyHealth[i] > 0)
+                        {
+                            Console.WriteLine($"  Lv.{enm.Level}  {PadRightForConsole(enm.Name, 15)}HP {enemyHealth[i]}");
+                            allDead = false;
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            Console.WriteLine($"  Lv.{enm.Level}  {PadRightForConsole(enm.Name, 15)}Dead");
+                            Console.ResetColor();
+                        }
+                        i++;
                     }
-                    i++;
+
+                    if (allDead) { Console.Clear(); BattleVictory(enemy, hero, questMgr, dungeon, potionInventory, potion, shop, Inventory, Inventory); Console.Clear(); break; }
+
+                    Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/{hero.MaxHealth}\n\nMP {hero.Mana}/{hero.MaxMana}\n\n");
+                    Console.Write("\n1. 공격\n2. 스킬\n\n원하시는 행동을 입력해주세요.\n>>");
+
+                    try { choice = int.Parse(Console.ReadLine()); }
+                    catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
+
+                    switch (choice)
+                    {
+                        case 1: BattleAttack(enemy, hero, enemyHealth, questMgr); break;
+                        case 2: BattleSkill(enemy, hero, enemyHealth, questMgr); break;
+                        default: Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break;
+                    }
                 }
-                
-                if (allDead) { Console.Clear(); BattleVictory(enemy, hero, questMgr, dungeon, potionInventory,potion); Console.Clear(); break; }
 
-                Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/{hero.MaxHealth}\n\nMP {hero.Mana}/{hero.MaxMana}\n\n");
-                Console.Write("\n1. 공격\n2. 스킬\n\n원하시는 행동을 입력해주세요.\n>>");
 
-                try { choice = int.Parse(Console.ReadLine()); }
-                catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
+            }
+            else
+            {//일반 몹-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                int mobCount = random.Next(dungeon.DungeonLevel, dungeon.DungeonLevel + 1);//몬스터 생성 마릿수
+                int[] enemyHealth = new int[mobCount];//몬스터 체력 저장 변수, class는 같은 종류의 몬스터들의 체력을 하나로 보아 필요
+                int i;
+                List<Monster> enemy = new List<Monster> { };//전투시의 적 리스트
 
-                switch (choice)
+                for (i = 0; i < mobCount; i++)
                 {
-                    case 1: BattleAttack(enemy, hero, enemyHealth, questMgr); break;
-                    case 2: BattleSkill(enemy, hero, enemyHealth, questMgr); break;
-                    default: Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break;
+                    enemy.Add(mob[random.Next(0, mob.Count)]);//mob리스트 안의 몬스터를 랜덤으로 enemy에 추가
+                    enemyHealth[i] = enemy[i].Hp;
+                }
+                int choice;
+                while (true)
+                {
+                    Console.Clear();
+                    if (hero.Health <= 0)
+                    {
+                        Console.WriteLine("\n현재 체력이 없습니다. 마을로 돌아갑니다...\n");
+                        break;
+                    }
+                    allDead = true;
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine("\nBattle!!\n\n");
+                    Console.ResetColor();
+                    i = 0;
+                    foreach (Monster enm in enemy)
+                    {
+                        if (enemyHealth[i] > 0)
+                        {
+                            Console.WriteLine($"  Lv.{enm.Level}  {PadRightForConsole(enm.Name, 15)}HP {enemyHealth[i]}");
+                            allDead = false;
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            Console.WriteLine($"  Lv.{enm.Level}  {PadRightForConsole(enm.Name, 15)}Dead");
+                            Console.ResetColor();
+                        }
+                        i++;
+                    }
+
+                    if (allDead) { Console.Clear(); BattleVictory(enemy, hero, questMgr, dungeon, potionInventory, potion, shop, Inventory, Inventory); Console.Clear(); break; }
+
+                    Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/{hero.MaxHealth}\n\nMP {hero.Mana}/{hero.MaxMana}\n\n");
+                    Console.Write("\n1. 공격\n2. 스킬\n\n원하시는 행동을 입력해주세요.\n>>");
+
+                    try { choice = int.Parse(Console.ReadLine()); }
+                    catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
+
+                    switch (choice)
+                    {
+                        case 1: BattleAttack(enemy, hero, enemyHealth, questMgr); break;
+                        case 2: BattleSkill(enemy, hero, enemyHealth, questMgr); break;
+                        default: Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break;
+                    }
                 }
             }
+
+            
+
+
+           
         }
         public static void BattleAttack(List<Monster> enemy, Character hero, int[] enemyHealth, QuestManager questMgr) //플레이어 공격시 메소드
         {
@@ -1342,7 +1440,7 @@ namespace TextRPGTeam
                 }
             }
         }
-        public static void BattleVictory(List<Monster> enemy, Character hero, QuestManager questMgr, Dungeon dungeon, PotionInven[] potionInventory ,Potion potion) //배틀 승리시 메소드
+        public static void BattleVictory(List<Monster> enemy, Character hero, QuestManager questMgr, Dungeon dungeon,PotionInven[] potionInventory ,Potion potion, List<Item> shop, List<Item> items, List<Item> Inventory) //배틀 승리시 메소드
         {
 
 
@@ -1362,14 +1460,14 @@ namespace TextRPGTeam
 
             int totalExp = enemy.Count * 10; //몬스터 x 경험치10
             int totaICash = enemy.Count * 150; //몬스터 x 골드 150
-            
+            hero.Cash += totaICash;
 
             Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
             Console.WriteLine($"HP {hero.Health}/100\n\n"); 
             Console.WriteLine("[클리어 보상]\n");          
             Console.WriteLine($"경험치를 흭득하셨습니다:{totalExp}"); //승리시 경험치 흭득
-            Treasure(enemy, potionInventory);  //포션 랜덤 함수
-            // Console.WriteLine("장비"); // 우선 비활성화 처리
+            Treasure(enemy, potionInventory,shop, Inventory, Inventory);  //포션 랜덤 함수
+
             Console.WriteLine($"골드를 획득하셨습니다: {totaICash}"); //골드 흭득
 
             Exp(hero, totalExp, questMgr);
@@ -1403,12 +1501,12 @@ namespace TextRPGTeam
         }
 
         //던전 클리어 보상 메소드
-        public static void Treasure(List<Monster> mob, PotionInven[] potionInventory)
+        public static void Treasure(List<Monster> mob, PotionInven[] potionInventory, List<Item> shop, List<Item> items, List<Item> Inventory)
         {
-
+            
             Random random = new Random();
 
-            for (int i = 0; i < mob.Count; i++)
+            for (int i = 0; i < mob.Count; i++) //포션
             {
                 int chance = random.Next(100);
                 int slot;
@@ -1432,7 +1530,52 @@ namespace TextRPGTeam
 
                 Console.WriteLine($"{droppedPotion.Name}을(를) 획득했습니다!"); // 여기서 드롭된 포션 이름 출력
             }
+            
+            for (int i = 0; i < mob.Count; i++)//장비
+            {
+                int chance = random.Next(100);
+                int slot;
+                Potion droppedweapon;
+
+                if (chance < 30)
+                {
+                    slot = 0;
+                }
+                else if (chance < 60)
+                {
+                    slot = 1;
+                }
+                else if (chance < 80)
+                {
+                    slot = 2;
+                }
+                else
+                {
+                    slot = 3;
+                }
+                items = new List<Item>
+                {
+                new Item("수련자갑옷", "수련에 도움을 주는 갑옷입니다.", 0, 5, 1000,"chest"),
+                new Item("무쇠갑옷", "무쇠로 만들어져 튼튼한 갑옷입니다.", 0, 9, 2000,"chest"),
+                new Item("낡은 검", "쉽게 볼 수 있는 낡은 검 입니다.", 2, 0, 600,"weapon"),
+                new Item("청동 도끼", "어디선가 사용됐던거 같은 도끼입니다.", 5, 0, 1500,"weapon"),
+                };
+                Item droppedItem = items[slot]; 
+                items[slot].Count++;
+                Inventory.Add(droppedItem);//인벤토리 아이템 수납
+                Console.WriteLine($"{droppedItem.Name}을(를) 획득했습니다!");//여기서 드롭된 장비 이름 출력
+
+
+
+            }
+            
         }
+
+
+
+
+
+
         public static void Exp(Character hero, int exp, QuestManager questMgr)
         {
 
@@ -1704,7 +1847,7 @@ namespace TextRPGTeam
 
         // 던전 관련 메서드  --------------------------------------------------------------------
 
-        public static void Dungeon(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory, Potion potion)
+        public static void Dungeon(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory, Potion potion, List<Item> shop, List<Item> items, List<Item> Inventory, List<Monster> boss)
         {
 
             Console.Clear();
@@ -1723,14 +1866,14 @@ namespace TextRPGTeam
 
                     case 1: Status(hero); break;
 
-                    case 2: Battle(mob, hero, questMgr, dungeon, potionInventory, potion); break;
+                    case 2: Battle(mob, hero, questMgr, dungeon, potionInventory, potion, shop,items,Inventory,boss); break;
 
-                    case 3: PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion); break;
+                    case 3: PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion, shop, items, Inventory, boss); break;
 
                     default:
                         Console.WriteLine("정확히 입력해주세요.\n계속하려면 아무 키나 누르세요.");
                         Console.ReadKey();
-                        Console.Clear(); Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion);
+                        Console.Clear(); Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion, shop, items, Inventory, boss);
                         break;
                 }
             }
@@ -1738,10 +1881,10 @@ namespace TextRPGTeam
             {
                 Console.WriteLine("정확히 입력해주세요.\n계속하려면 아무 키나 누르세요.");
                 Console.ReadKey();
-                Console.Clear(); Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion);
+                Console.Clear(); Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion, shop, items, Inventory, boss);
             }
         }
-        public static void PotionHeal(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory, Potion potion)
+        public static void PotionHeal(List<Monster> mob, Character hero, Dungeon dungeon, QuestManager questMgr, PotionInven[] potionInventory, Potion potion, List<Item> shop, List<Item> items, List<Item> Inventory, List<Monster> boss)
         {
             int choice;
             int Potion;
@@ -1788,11 +1931,11 @@ namespace TextRPGTeam
 
                 if (Select == 0)
                 {
-                    Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion);
+                    Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion,shop,items, Inventory, boss);
                     return;
                 }
                 else if (Select >= 4) {
-                    PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion);
+                    PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion, shop, items, Inventory, boss);
                 }
 
                 int selectedIndex = Select - 1;
@@ -1828,7 +1971,7 @@ namespace TextRPGTeam
 
                         selectedPotion.Count--;
 
-                        PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion);
+                        PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion, shop, items,Inventory, boss);
                     }
                 }
             }
