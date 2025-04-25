@@ -202,6 +202,13 @@ namespace TextRPGTeam
                          new Class("마법사", "마법사입니다.", 8, 6, 70, 100, magicion)
                 ];
 
+            Class[] jobList = new Class[] // 직업 재선택
+               {
+                     new Class("전사", "전사입니다.", 10, 5,100,50, warrior),
+                     new Class("도적", "도적입니다.", 15, 3, 80, 50, thief),
+                     new Class("마법사", "마법사입니다.", 8, 6, 70, 100, magicion)
+               };
+
             List<Item> shop = new List<Item> // 상점 아이템
                 {
                 new Item("수련자갑옷", "수련에 도움을 주는 갑옷입니다.", 0, 5, 1000,"chest"),
@@ -322,6 +329,12 @@ namespace TextRPGTeam
 
                 switch (choice)
                 {
+                    case 0:
+                        {
+                            Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
+                            ChooseJob(ref hero, jobList);
+                            break;
+                        }
                     case 1:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
@@ -371,6 +384,53 @@ namespace TextRPGTeam
                 }
             }
         }
+
+        //직업 변경
+
+        public static void ChooseJob(ref Character hero, Class[] jobList)
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("\n어서오세요, " + hero.Name + "님!\n\n모험가님의 직업을 알려주세요.\n\n");
+
+                for (int i = 0; i < jobList.Length; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {jobList[i].Name} : {jobList[i].Description}\n");
+                }
+
+                Console.Write(">> ");
+                if (int.TryParse(Console.ReadLine(), out int jobChoice) &&
+                    jobChoice >= 1 && jobChoice <= jobList.Length)
+                {
+                    Class selected = jobList[jobChoice - 1];
+                    hero.Class = selected.Name;
+                    hero.Att = selected.Att;
+                    hero.Def = selected.Def;
+                    hero.Health = selected.Health;
+                    hero.Mana = selected.Mana;
+                    hero.MaxHealth = selected.Health;
+                    hero.MaxMana = selected.Mana;
+                    //hero.SkillSet = selected.SkillSet;
+
+                    Console.Write("\n직업이");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write($"'{hero.Class}'");
+                    Console.ResetColor();
+                    Console.Write("(으)로 변경되었습니다.");
+                    Console.WriteLine("\n아무 키나 누르시면 메인 화면으로 돌아갑니다.");
+                    Console.ReadKey();
+                    Console.Clear();
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("잘못된 입력입니다. 다시 선택하세요.");
+                    Console.ReadKey();
+                }
+            }
+        }
+
         public static void Status(Character c)
         {
             Console.Clear();
@@ -1096,7 +1156,7 @@ namespace TextRPGTeam
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("\nBattle - Result\n\n");
             Console.ResetColor();
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Victory\n\n");
             Console.ResetColor();
             Console.WriteLine($"던전에서 몬스터 {enemy.Count}마리를 잡았습니다.\n\n");
@@ -1124,7 +1184,8 @@ namespace TextRPGTeam
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("\nBattle - Result\n\n");
             Console.ResetColor();
-            Console.ForegroundColor = ConsoleColor.Red;
+            Console.BackgroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("You Lose\n\n");
             Console.ResetColor();
             Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
@@ -1291,7 +1352,18 @@ namespace TextRPGTeam
                 };
 
                 PrintColor("< 퀘스트 상세 >\n", ConsoleColor.Cyan);
-                PrintColor("퀘스트를 포기하면 진행도가 초기화됩니다! 주의하세요!\n", ConsoleColor.DarkRed);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("퀘스트를 포기");
+                Console.ResetColor();
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.Write("하면 ");
+                Console.ResetColor();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("진행도가 초기화");
+                Console.ResetColor();
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.Write(" 됩니다! 주의하세요!\n\n");
+                Console.ResetColor();
                 Console.WriteLine($"제목: {quest.Title}\n");
                 Console.WriteLine($"설명: {quest.Description}\n");
                 Console.WriteLine($"상태: [{statusKor}]");
@@ -1436,7 +1508,7 @@ namespace TextRPGTeam
             Console.WriteLine("0. 이전 화면");
             Console.WriteLine("1. 상태 보기");
             Console.WriteLine($"2. 전투 시작 (현재 진행 : {dungeon.DungeonLevel}층)");
-            Console.WriteLine("3.회복 아이템");
+            Console.WriteLine("3. 회복 아이템");
             Console.WriteLine("원하시는 행동을 입력해주세요.\r\n");
             int Select = int.Parse(Console.ReadLine());
 
