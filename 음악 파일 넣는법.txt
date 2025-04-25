@@ -1,3 +1,0 @@
-지금 폴더기준으로
-MUsic 폴더를
-TextRPGTeam / bin / Debug / net8.0 / 안쪽으로 놓으면 실행가능

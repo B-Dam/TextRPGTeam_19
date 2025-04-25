@@ -208,7 +208,7 @@ namespace TextRPGTeam
         {
             // 실행 중인 .exe 기준으로 "Music" 폴더를 참조
             private static readonly string BasePath =
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Music");
+    Path.GetFullPath(Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "..", "..", "..", "..", "Music"));
 
             private static SoundPlayer _bgmPlayer;
             private static readonly object _bgmLock = new object();
