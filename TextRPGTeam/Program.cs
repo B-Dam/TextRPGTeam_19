@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks.Dataflow;
+using TextRPGTeam.QuestSystem;
 
 namespace TextRPGTeam
 {
@@ -45,7 +46,35 @@ namespace TextRPGTeam
         }
     }
     // 직업
+    struct Potion()
+    {
+        public string Name;
+        public string Description;
+        public int Heal;
+        public int Mana;
+        public int Value;
 
+        public Potion(string n, string d, int h, int m, int v) : this()
+        {
+            Name = n;
+            Description = d;
+            Heal = h;
+            Mana = m;
+            Value = v;
+        }
+    }
+
+    class PotionInven
+    {
+        public Potion potion;
+        public int Count;
+
+            public PotionInven(Potion p, int c)
+            {
+            potion = p;
+            Count = c;
+            }
+}
     class Character()
     {
         public int Level = 1;
@@ -88,7 +117,7 @@ namespace TextRPGTeam
 
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main(string[] args , PotionInven[] potionInventory)
         {
             Character hero = new Character(); // 플레이어 정보
 
@@ -208,7 +237,7 @@ namespace TextRPGTeam
                     case 4:
                         {
                             Console.WriteLine("\n" + choice + "번 선택됨!\n\n");
-                            Battle(mob, hero);
+                            Battle(mob, hero ,potionInventory);
                             break;
                         }
                     case 5:
@@ -586,7 +615,7 @@ namespace TextRPGTeam
         }
         //휴식
 
-        public static void Battle(List<Monster> mob, Character hero)//배틀 메소드
+        public static void Battle(List<Monster> mob, Character hero, PotionInven[] potionInventory)//배틀 메소드
         {
             bool allDead;
             Random random = new Random();
@@ -629,7 +658,7 @@ namespace TextRPGTeam
                     }
                     i++;
                 }
-                if (allDead) { Console.Clear(); BattleVictory(enemy, hero); Console.Clear(); break; }
+                if (allDead) { Console.Clear(); BattleVictory(enemy, hero, potionInventory); Console.Clear(); break; }
                 Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/100\n\n");
                 Console.Write("\n1. 공격\n\n원하시는 행동을 입력해주세요.\n>>");
                 try { choice = int.Parse(Console.ReadLine()); }
@@ -740,14 +769,16 @@ namespace TextRPGTeam
                 }
             }
         }
-        public static void BattleVictory(List<Monster> enemy, Character hero) //배틀 승리시 메소드
+        public static void BattleVictory(List<Monster> enemy, Character hero, PotionInven[] potionInventory) //배틀 승리시 메소드
         {
             Console.Clear();
+
             Console.WriteLine("\nBattle - Result\n\n");
             Console.WriteLine("Victory\n\n");
             Console.WriteLine($"던전에서 몬스터 {enemy.Count}마리를 잡았습니다.\n\n");
             Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
             Console.WriteLine($"HP {hero.Health}/100\n\n");
+            Console.WriteLine($"{potionInventory}");
             Console.Write("아무버튼이나 누르세요..");
             Console.ReadLine();
         }
@@ -770,6 +801,38 @@ namespace TextRPGTeam
 
             int padding = Math.Max(0, totalWidth - visualLength);
             return input + new string(' ', padding);
+        }
+        //던전 클리어 보상 메소드
+        public static void Treasure(List<Monster> mob, Character hero, PotionInven[] potionInventory)
+        {
+            Random random = new Random();
+            int num = random.Next(1, 4); // 1~3
+
+            switch (num)
+            {
+                case 1:
+                    AddPotion(potionInventory, potionInventory[0].potion); // red포션
+                    break;
+                case 2:
+                    AddPotion(potionInventory, potionInventory[1].potion); // blue포션
+                    break;
+                case 3:
+                    AddPotion(potionInventory, potionInventory[2].potion); // high포션
+                    break;
+            }
+
+            void AddPotion(PotionInven[] potionInventory, Potion potion)
+            {
+                foreach (var inven in potionInventory)
+                {
+                    if (inven.potion.Name == potion.Name)
+                    {
+                        inven.Count++;
+                        Console.WriteLine($"{potion.Name}를 획득했습니다!");
+                        return;
+                    }
+                }
+            }
         }
     }
 }
