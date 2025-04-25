@@ -1207,44 +1207,30 @@ namespace TextRPGTeam
         {
 
             Random random = new Random();
-            string redPotion = potionInventory[0].Potion.Name;
-            string bluePotion = potionInventory[1].Potion.Name;
-            string highPotion = potionInventory[2].Potion.Name;
 
             for (int i = 0; i < mob.Count; i++)
             {
                 int chance = random.Next(100);
+                int slot;
                 Potion droppedPotion;
 
                 if (chance < 60)
                 {
-                    droppedPotion = potionInventory[0].Potion;
-                    AddPotion(potionInventory, droppedPotion);
+                    slot = 0;
                 }
                 else if (chance < 90)
                 {
-                    droppedPotion = potionInventory[1].Potion;
-                    AddPotion(potionInventory, droppedPotion);
+                    slot = 1;
                 }
                 else
                 {
-                    droppedPotion = potionInventory[2].Potion;
-                    AddPotion(potionInventory, droppedPotion);
+                    slot = 2;
                 }
 
-                Console.WriteLine($"{potionInventory[i].Potion.Name}를 획득했습니다!");
-            }
+                droppedPotion = potionInventory[slot].potion; // 0은 빨강, 1은 파랑, 2는 엘릭서
+                potionInventory[slot].Count++;                // 포션 인벤토리에서 해당 배열의 카운트 증가
 
-            void AddPotion(PotionInven[] potionInventory, Potion potion)
-            {
-                foreach (var inven in potionInventory)
-                {
-                    if (inven.Potion.Name == potion.Name)
-                    {
-                        inven.Count++;
-                        return;
-                    }
-                }
+                Console.WriteLine($"{droppedPotion.Name}을(를) 획득했습니다!"); // 여기서 드롭된 포션 이름 출력
             }
         }
         public static void Exp(Character hero, int exp, QuestManager questMgr)
