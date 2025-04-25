@@ -1343,7 +1343,7 @@ namespace TextRPGTeam
             Console.WriteLine("You Lose\n\n");
             Console.ResetColor();
             Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
-            Console.WriteLine($"HP {hero.Health}/100\n\n");
+            Console.WriteLine($"HP {hero.Health}/{hero.MaxHealth} \n\n\n");
             Console.Write("아무버튼이나 누르세요..");
             Console.ReadLine();
         }
