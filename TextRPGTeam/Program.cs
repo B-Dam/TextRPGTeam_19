@@ -1447,7 +1447,7 @@ namespace TextRPGTeam
                 };
                 Item droppedItem = items[slot]; 
                 items[slot].Count++;
-                Inventory.Add(droppedItem);
+                Inventory.Add(droppedItem);//인벤토리 아이템 수납
                 Console.WriteLine($"{droppedItem.Name}을(를) 획득했습니다!");//여기서 드롭된 장비 이름 출력
 
 
