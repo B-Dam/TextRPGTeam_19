@@ -111,9 +111,7 @@ namespace TextRPGTeam
         public int Heal;
         public int Mana;
         public int Value;
-        public int redPotion;
-        public int bluePotion;
-        public int highPotion;
+
 
 
         public Potion(string n, string d, int h, int m, int v) : this()
@@ -123,6 +121,10 @@ namespace TextRPGTeam
             Heal = h;
             Mana = m;
             Value = v;
+        }
+        public override string ToString()
+        {
+            return Name;
         }
     }
 
@@ -227,7 +229,6 @@ namespace TextRPGTeam
             Potion redPotion = new Potion("빨강포션", "체력 30 회복", 30, 0, 100);
             Potion bluePotion = new Potion("파랑포션", "마나 50 회복", 0, 50, 70);
             Potion highPotion = new Potion("엘릭서", "체력&마나 100 회복", 100, 100, 1000);
-            Potion potion = new Potion();
             PotionInven[] potionInventory = { new PotionInven(redPotion, 3), new PotionInven(bluePotion, 0), new PotionInven(highPotion, 1) };
 
             List<Monster> mob = new List<Monster> {
@@ -1113,8 +1114,8 @@ namespace TextRPGTeam
             Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
             Console.WriteLine($"HP {hero.Health}/100\n\n"); 
             Console.WriteLine("[클리어 보상]\n");
-            Treasure(enemy, hero, questMgr, dungeon, potionInventory);  //포션 랜덤 함수
-            Console.WriteLine($"{potionInventory}를 획득했습니다!"); //포션 흭득
+            Treasure(enemy, potionInventory);  //포션 랜덤 함수
+            
             Console.WriteLine($"경험치를 흭득하셨습니다:{totalExp}"); //승리시 경험치 흭득
             Console.WriteLine("장비");
             Console.WriteLine($"골드를 획득하셨습니다: {totaICash}"); //골드 흭득
@@ -1148,43 +1149,48 @@ namespace TextRPGTeam
         }
 
         //던전 클리어 보상 메소드
-        public static void Treasure(List<Monster> mob, Character hero, QuestManager questMgr, Dungeon dungeon, PotionInven[] potionInventory)
+        public static void Treasure(List<Monster> mob, PotionInven[] potionInventory)
         {
             Random random = new Random();
-
             string redPotion = potionInventory[0].Potion.Name;
             string bluePotion = potionInventory[1].Potion.Name;
             string highPotion = potionInventory[2].Potion.Name;
 
             for (int i = 0; i < mob.Count; i++)
             {
-                int chance = random.Next(100); // 0~99
+                int chance = random.Next(100);
+                Potion droppedPotion;
 
                 if (chance < 60)
                 {
-                    AddPotion(potionInventory, potionInventory[0].Potion); // red포션
+                    droppedPotion = potionInventory[0].Potion;
+                    AddPotion(potionInventory, droppedPotion);
                 }
                 else if (chance < 90)
                 {
-                    AddPotion(potionInventory, potionInventory[1].Potion); // blue포션
+                    droppedPotion = potionInventory[1].Potion;
+                    AddPotion(potionInventory, droppedPotion);
                 }
                 else
                 {
-                    AddPotion(potionInventory, potionInventory[2].Potion); // high포션
-                }             
+                    droppedPotion = potionInventory[2].Potion;
+                    AddPotion(potionInventory, droppedPotion);
+                }
+
+                Console.WriteLine($"{potionInventory[0].Potion.Name}를 획득했습니다!");
             }
+
             void AddPotion(PotionInven[] potionInventory, Potion potion)
+            {
+                foreach (var inven in potionInventory)
                 {
-                    foreach (var inven in potionInventory)
+                    if (inven.Potion.Name == potion.Name)
                     {
-                        if (inven.Potion.Name == potion.Name)
-                        {
-                            
-                            inven.Count++;                           
-                            return;
-                        }
+                        inven.Count++;
+                        return;
                     }
                 }
+            }
         }
         public static void Exp(Character hero, int exp, QuestManager questMgr)
         {
