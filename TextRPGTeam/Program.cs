@@ -1320,7 +1320,7 @@ namespace TextRPGTeam
             
 
             Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
-            Console.WriteLine($"HP {hero.Health}/100\n\n"); 
+            Console.WriteLine($"HP {hero.Health}/{hero.MaxHealth} \n\n"); 
             Console.WriteLine("[클리어 보상]\n");          
             Console.WriteLine($"경험치를 흭득하셨습니다:{totalExp}"); //승리시 경험치 흭득
             Treasure(enemy, potionInventory);  //포션 랜덤 함수
