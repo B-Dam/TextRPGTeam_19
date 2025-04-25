@@ -7,6 +7,10 @@ using System.Threading.Tasks.Dataflow;
 using TextRPGTeam.QuestSystem; // using문 추가
 using System.Media;
 using System.Threading;
+using System.IO;
+using Grpc.Core;
+using System.Web;
+
 
 namespace TextRPGTeam
 {
@@ -202,32 +206,63 @@ namespace TextRPGTeam
         //bgm 관리 매니저
         public static class SoundManager
         {
-            private static string basePath = @"C:\Users\mincho\OneDrive\문서\GitHub\TextRPGTeam_19\TextRPGTeam\Assets\";
-            private static SoundPlayer bgmPlayer;
+            // 실행 중인 .exe 기준으로 "Music" 폴더를 참조
+            private static readonly string BasePath =
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Music");
 
-            //배경 사운드
+            private static SoundPlayer _bgmPlayer;
+            private static readonly object _bgmLock = new object();
+
+            /// <summary>
+            /// Music 폴더 내 파일명을 넘기면 자동으로 절대경로를 만들어 루프 재생
+            /// </summary>
             public static void PlayBGM(string fileName)
             {
-                string path = basePath + fileName;
-                bgmPlayer = new SoundPlayer(path);
-                bgmPlayer.PlayLooping();
+                var fullPath = Path.Combine(BasePath, fileName);
+                if (!File.Exists(fullPath))
+                    throw new FileNotFoundException($"BGM 파일이 없습니다: {fullPath}");
+
+                lock (_bgmLock)
+                {
+                    _bgmPlayer?.Stop();
+                    _bgmPlayer?.Dispose();
+                    _bgmPlayer = new SoundPlayer(fullPath);
+                    _bgmPlayer.PlayLooping();
+                }
             }
 
-            //효과음
-            public static void PlaySLT(string fileName)
+            /// <summary>
+            /// 현재 재생 중인 BGM 정지
+            /// </summary>
+            public static void StopBGM()
             {
-                string path = basePath + fileName;
-
-                new Thread(() =>
+                lock (_bgmLock)
                 {
-                    SoundPlayer slt = new SoundPlayer(path);
-                    slt.PlaySync();
-                }).Start();
+                    _bgmPlayer?.Stop();
+                    _bgmPlayer?.Dispose();
+                    _bgmPlayer = null;
+                }
+            }
+
+            /// <summary>
+            /// Music 폴더 내 파일명을 넘겨 비동기 효과음 재생
+            /// </summary>
+            public static void PlaySFX(string fileName)
+            {
+                var fullPath = Path.Combine(BasePath, fileName);
+                if (!File.Exists(fullPath))
+                    throw new FileNotFoundException($"SFX 파일이 없습니다: {fullPath}");
+
+                Task.Run(() =>
+                {
+                    using (var player = new SoundPlayer(fullPath))
+                        player.PlaySync();
+                });
             }
         }
         static void Main(string[] args)
         {
-            SoundManager.PlayBGM("Cheerful Title Screen.wav");
+            SoundManager.PlayBGM("1.wav");
 
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("::::::::::: :::::::::: :::    ::: :::::::::::      :::::::::  :::::::::   ::::::::  ");
