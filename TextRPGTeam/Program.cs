@@ -1601,6 +1601,9 @@ namespace TextRPGTeam
                     Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion);
                     return;
                 }
+                else if (Select >= 4) {
+                    PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion);
+                }
 
                 int selectedIndex = Select - 1;
                 if (selectedIndex >= 0 && selectedIndex < potionInventory.Length)
@@ -1611,7 +1614,7 @@ namespace TextRPGTeam
                     {
                         Console.WriteLine("\n포션이 부족합니다.");
                     }
-                    else
+                    
                     {
 
 
@@ -1635,9 +1638,6 @@ namespace TextRPGTeam
 
                         selectedPotion.Count--;
 
-                        Console.WriteLine($"\n{selectedPotion.potion.Name} 사용!");
-                        if (actualHeal > 0) Console.WriteLine($"체력 {actualHeal} 회복!");
-                        if (actualMana > 0) Console.WriteLine($"마나 {actualMana} 회복!");
                         PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion);
                     }
                 }
