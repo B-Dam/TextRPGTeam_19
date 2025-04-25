@@ -486,8 +486,7 @@ namespace TextRPGTeam
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
                 switch (choice)
                 {
-                    case 1: Console.WriteLine("장착관리를 선택하셨습니다|\n"); Equip(Inventory, hero, questMgr); break;
-                    case 2: Console.WriteLine("나가기를 선택하셨습니다|\n"); break;
+                    case 1: Equip(Inventory, hero, questMgr); break;
                     default: Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break;
                 }
                 if (choice == 0) { Console.Clear(); break; }
@@ -921,7 +920,7 @@ namespace TextRPGTeam
                 if (allDead) { Console.Clear(); BattleVictory(enemy, hero, questMgr, dungeon, potionInventory,potion); Console.Clear(); break; }
 
                 Console.Write($"\n\n\n[내정보]\n\nLv.{hero.Level} {hero.Name} \t ({hero.Class})\n\nHP {hero.Health}/{hero.MaxHealth}\n\nMP {hero.Mana}/{hero.MaxMana}\n\n");
-                Console.Write("\n1. 공격\n2.스킬\n\n원하시는 행동을 입력해주세요.\n>>");
+                Console.Write("\n1. 공격\n2. 스킬\n\n원하시는 행동을 입력해주세요.\n>>");
 
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
@@ -1165,10 +1164,10 @@ namespace TextRPGTeam
             Console.WriteLine($"Lv.{hero.Level} {hero.Name}\n");
             Console.WriteLine($"HP {hero.Health}/100\n\n"); 
             Console.WriteLine("[클리어 보상]\n");
+
             Treasure(enemy, potionInventory);  //포션 랜덤 함수
-            
             Console.WriteLine($"경험치를 흭득하셨습니다:{totalExp}"); //승리시 경험치 흭득
-            Console.WriteLine("장비");
+            // Console.WriteLine("장비"); // 일단 비활성화
             Console.WriteLine($"골드를 획득하셨습니다: {totaICash}"); //골드 흭득
             Exp(hero, totalExp, questMgr);
             Console.Write("아무버튼이나 누르세요..");
@@ -1229,7 +1228,7 @@ namespace TextRPGTeam
                     AddPotion(potionInventory, droppedPotion);
                 }
 
-                Console.WriteLine($"{potionInventory[0].Potion.Name}를 획득했습니다!");
+                Console.WriteLine($"{potionInventory[i].Potion.Name}를 획득했습니다!");
             }
 
             void AddPotion(PotionInven[] potionInventory, Potion potion)
