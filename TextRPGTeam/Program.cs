@@ -1257,9 +1257,8 @@ namespace TextRPGTeam
                     if (hero.Mana < hero.SkillSet[choice - 1].ManaConsume)
                     {
                         Console.Clear();
-                        
-                        continue;
                         Console.WriteLine("MP가 부족합니다. 다른 스킬을 선택하세요.");
+                        continue;
                     }
                     if (hero.SkillSet[choice - 1].TargetNumber == -1)//전체공격 
                     {
@@ -1402,50 +1401,36 @@ namespace TextRPGTeam
             int damage;
             Monster foe = enemy[targetIndex];
 
-            bool isEvaded = random.Next(0, 100) < foe.EvadeRate;
             bool isCritical = random.Next(0, 100) < hero.CritRate;
             damage = (int)(hero.Att + hero.EqAtt + hero.LevelBonusAtt) + random.Next(-1, 2);//공격력과 장비공격력을 더하고 오차 +-1의 데미지
             damage = (int)(damage * skill.Multiplier);
 
-            if (isCritical)
+            string critText = "";
+            if (isCritical) //플레이어 치명타
             {
-                damage = (int)((hero.Att + hero.EqAtt) * skill.Multiplier); // 몬스터 회피X
+                damage = (int)(damage * hero.CritMultiplier);
+                critText = " - 치명타 공격!!";
             }
 
             foe.Hp -= damage;
             enemyHealth[targetIndex] -= damage;
 
-            Console.Clear();
-            Console.WriteLine($"{hero.Name}의 {skill.Name} 공격!\n\n");
-            Console.WriteLine($"{foe.Name} 을(를) 맞췄습니다. [데미지 : {damage}]");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("\nBattle!!\n\n\n");
+            Console.ResetColor();
+            Console.Write($"{hero.Name}의 {skill.Name} 공격!\n\n");
+            Console.Write($"Lv.{foe.Level} {foe.Name} 을(를) 맞췄습니다.");
+            Console.Write($"[데미지 : {damage}]{critText}\n\n\n");
+            Console.Write($"Lv.{foe.Level} {foe.Name}\n\n");
+            if (enemyHealth[targetIndex] > 0)
+                Console.Write($"HP {enemyHealth[targetIndex] + damage} -> {enemyHealth[targetIndex]}");
+            else
+            {
+                Console.Write($"HP {enemyHealth[targetIndex] + damage} -> Dead");
+                questMgr.OnMonsterKilled(foe.Name);
+            }
             Console.Write("\n\n\n아무버튼이나 누르세요..");
             Console.ReadLine();
-            
-                string critText = "";
-                if (isCritical) //플레이어 치명타
-                {
-                    damage = (int)(damage * hero.CritMultiplier);
-                    critText = " - 치명타 공격!!";
-                }
-
-                enemyHealth[targetIndex] -= damage;
-                Console.ForegroundColor = ConsoleColor.DarkYellow;
-                Console.Write("\nBattle!!\n\n\n");
-                Console.ResetColor();
-                Console.Write($"{hero.Name}의 {skill.Name} 공격!\n\n");
-                Console.Write($"Lv.{foe.Level} {foe.Name} 을(를) 맞췄습니다.");
-                Console.Write($"[데미지 : {damage}]{critText}\n\n\n");
-                Console.Write($"Lv.{foe.Level} {foe.Name}\n\n");
-                if (enemyHealth[targetIndex] > 0)
-                    Console.Write($"HP {enemyHealth[targetIndex] + damage} -> {enemyHealth[targetIndex]}");
-                else
-                {
-                    Console.Write($"HP {enemyHealth[targetIndex] + damage} -> Dead");
-                    questMgr.OnMonsterKilled(foe.Name);
-                }
-                Console.Write("\n\n\n아무버튼이나 누르세요..");
-                Console.ReadLine();
-            }
         }
 
         public static void EnemyAttack(List<Monster> enemy, Character hero, int[] enemyHealth, QuestManager questMgr)//적군 공격시 메소드
