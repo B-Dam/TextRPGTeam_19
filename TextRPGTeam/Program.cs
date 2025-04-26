@@ -80,6 +80,7 @@ namespace TextRPGTeam
         public bool TargetRandom;//타겟팅 랜덤
         public float Multiplier;//데미지 배율
         public int ManaConsume;//소비마나
+
         public Skill(string n, string d, int t, bool tr, float m, int mc) : this()
         {
             Name = n;
@@ -1406,17 +1407,20 @@ namespace TextRPGTeam
             damage = (int)(hero.Att + hero.EqAtt + hero.LevelBonusAtt) + random.Next(-1, 2);//공격력과 장비공격력을 더하고 오차 +-1의 데미지
             damage = (int)(damage * skill.Multiplier);
 
-            if (isEvaded) //몬스터 회피
+            if (isCritical)
             {
-                damage = 0;
-                Console.Clear();
-                Console.Write($"\nBattle!!\n\n\n{hero.Name}의 {skill.Name} 공격!\n\n");
-                Console.WriteLine($"{foe.Name} 을(를) 공격했지만 아무일도 일어나지 않았습니다.");
-                Console.Write("\n\n\n아무버튼이나 누르세요..");
-                Console.ReadLine();
+                damage = (int)((hero.Att + hero.EqAtt) * skill.Multiplier); // 몬스터 회피X
             }
-            else
-            {
+
+            foe.Hp -= damage;
+            enemyHealth[targetIndex] -= damage;
+
+            Console.Clear();
+            Console.WriteLine($"{hero.Name}의 {skill.Name} 공격!\n\n");
+            Console.WriteLine($"{foe.Name} 을(를) 맞췄습니다. [데미지 : {damage}]");
+            Console.Write("\n\n\n아무버튼이나 누르세요..");
+            Console.ReadLine();
+            
                 string critText = "";
                 if (isCritical) //플레이어 치명타
                 {
