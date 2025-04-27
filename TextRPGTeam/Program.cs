@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks.Dataflow;
 using TextRPGTeam.QuestSystem; // using문 추가
-using System.Media;
+using NAudio.Wave;
 using System.Threading;
 using System.IO;
 
