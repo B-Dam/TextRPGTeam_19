@@ -211,6 +211,7 @@ namespace TextRPGTeam
             private static string basePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "..", "..", "..", "..", "Music/"));
 
             // 배경음악 재생
+            private static LoopStream loopStream;
             public static void PlayBGM(string fileName, float volume = 0.5f)
             {
                 StopBGM(); // 이전 BGM 정지
@@ -219,8 +220,9 @@ namespace TextRPGTeam
                 bgmReader = new AudioFileReader(path);
                 bgmReader.Volume = volume;
 
+                loopStream = new LoopStream(bgmReader);
                 bgmPlayer = new WaveOutEvent();
-                bgmPlayer.Init(bgmReader);
+                bgmPlayer.Init(loopStream);
                 bgmPlayer.Play();
             }
 
@@ -228,11 +230,51 @@ namespace TextRPGTeam
             public static void StopBGM()
             {
                 bgmPlayer?.Stop();
+                loopStream?.Dispose();
                 bgmReader?.Dispose();
                 bgmPlayer?.Dispose();
                 bgmReader = null;
+                loopStream = null;
                 bgmPlayer = null;
             }
+
+            // 배경음악 반복 재생
+            public class LoopStream : WaveStream
+            {
+                private readonly WaveStream sourceStream;
+
+                public LoopStream(WaveStream sourceStream)
+                {
+                    this.sourceStream = sourceStream;
+                    this.EnableLooping = true;
+                }
+
+                public bool EnableLooping { get; set; }
+
+                public override WaveFormat WaveFormat => sourceStream.WaveFormat;
+
+                public override long Length => sourceStream.Length;
+
+                public override long Position
+                {
+                    get => sourceStream.Position;
+                    set => sourceStream.Position = value;
+                }
+
+                public override int Read(byte[] buffer, int offset, int count)
+                {
+                    int read = sourceStream.Read(buffer, offset, count);
+
+                    if (read == 0 && EnableLooping)
+                    {
+                        sourceStream.Position = 0;
+                        read = sourceStream.Read(buffer, offset, count);
+                    }
+
+                    return read;
+                }
+            }
+
 
             // 효과음 재생
             public static void PlaySFX(string fileName, float volume = 0.2f)
