@@ -1041,6 +1041,7 @@ namespace TextRPGTeam
             if (dungeon.DungeonLevel % 5 == 0)
                 //보스 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
             {
+                SoundManager.PlayBGM("Sketchbook.wav");
                 int mobCount = random.Next(dungeon.DungeonLevel/5, dungeon.DungeonLevel/5 + 1);//몬스터 생성 마릿수
                 int[] enemyHealth = new int[mobCount];//몬스터 체력 저장 변수, class는 같은 종류의 몬스터들의 체력을 하나로 보아 필요
                 int i;
@@ -1101,6 +1102,7 @@ namespace TextRPGTeam
             }
             else
             {//일반 몹-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                SoundManager.PlayBGM("Sketchbook.wav");
                 int mobCount = random.Next(dungeon.DungeonLevel, dungeon.DungeonLevel + 1);//몬스터 생성 마릿수
                 int[] enemyHealth = new int[mobCount];//몬스터 체력 저장 변수, class는 같은 종류의 몬스터들의 체력을 하나로 보아 필요
                 int i;
@@ -1955,7 +1957,6 @@ namespace TextRPGTeam
                         }
                     case 2:
                         {
-                            SoundManager.PlayBGM("Sketchbook.wav");
                             SoundManager.PlaySFX("Select2.wav");
                             Battle(mob, hero, questMgr, dungeon, potionInventory, potion, shop, items, Inventory, boss);
                             break;
