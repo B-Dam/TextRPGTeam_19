@@ -202,32 +202,56 @@ namespace TextRPGTeam
     {
         static int lastClearedDungeonLevel = 0; // 던전 클리어 레벨 기억용
 
-        //bgm 관리 매니저
+        // 사운드 관리
         public static class SoundManager
         {
-            private static string basePath = @"Assets\";
-            private static SoundPlayer bgmPlayer;
+            private static AudioFileReader bgmReader;
+            private static WaveOutEvent bgmPlayer;
 
-            //배경 사운드
-            public static void PlayBGM(string fileName)
+            private static string basePath = @"Assets\";
+
+            // 배경음악 재생
+            public static void PlayBGM(string fileName, float volume = 0.5f)
             {
+                StopBGM(); // 이전 BGM 정지
+
                 string path = basePath + fileName;
-                bgmPlayer = new SoundPlayer(path);
-                bgmPlayer.PlayLooping();
+                bgmReader = new AudioFileReader(path);
+                bgmReader.Volume = volume;
+
+                bgmPlayer = new WaveOutEvent();
+                bgmPlayer.Init(bgmReader);
+                bgmPlayer.Play();
             }
 
-            //효과음
-            public static void PlaySLT(string fileName)
+            // 배경음악 정지
+            public static void StopBGM()
+            {
+                bgmPlayer?.Stop();
+                bgmReader?.Dispose();
+                bgmPlayer?.Dispose();
+                bgmReader = null;
+                bgmPlayer = null;
+            }
+
+            // 효과음 재생
+            public static void PlaySFX(string fileName, float volume = 0.2f)
             {
                 string path = basePath + fileName;
+                var reader = new AudioFileReader(path) { Volume = volume };
+                var player = new WaveOutEvent();
+                player.Init(reader);
+                player.Play();
 
-                new Thread(() =>
+                // 재생 완료 후 해제 (딜레이 최소화)
+                player.PlaybackStopped += (s, e) =>
                 {
-                    SoundPlayer slt = new SoundPlayer(path);
-                    slt.PlaySync();
-                }).Start();
+                    reader.Dispose();
+                    player.Dispose();
+                };
             }
         }
+
         static void Main(string[] args)
         {
             SoundManager.PlayBGM("Cheerful Title Screen.wav");
@@ -247,6 +271,7 @@ namespace TextRPGTeam
             Console.ReadKey();
             Console.ResetColor();
 
+            SoundManager.PlaySFX("Select2.wav");
             Console.Clear();
 
             Character hero = new Character(); // 플레이어 정보
@@ -412,6 +437,7 @@ namespace TextRPGTeam
                 Console.WriteLine("\n" + hero.Name + "님, 다음은 무엇을 할지 선택해 주세요.\n\n");
                 Console.Write("1. 상태 보기\n\n2. 인벤토리\n\n3. 상점\n\n4. 던전입장\n\n5. 회복\n\n6. 퀘스트\n\n\n0. 캐릭터 직업 변경\n\n>>");
 
+                SoundManager.PlaySFX("Select2.wav");
                 try { choice = int.Parse(Console.ReadLine()); }
                 catch { Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); continue; }
                 
@@ -419,36 +445,43 @@ namespace TextRPGTeam
                 {
                     case 0:
                         {
+                            SoundManager.PlaySFX("Select2.wav");
                             ChooseJob(ref hero, jobList);
                             break;
                         }
                     case 1:
                         {
+                            SoundManager.PlaySFX("Select2.wav");
                             Status(hero); //상태보기
                             break;
                         }
                     case 2:
                         {
+                            SoundManager.PlaySFX("Select2.wav");
                             Inven(inventory, hero, questMgr); //인벤보기
                             break;
                         }
                     case 3:
                         {
+                            SoundManager.PlaySFX("Select2.wav");
                             Store(shop, inventory, hero, potionInventory); // 상점가기
                             break;
                         }
                     case 4:
                         {
+                            SoundManager.PlaySFX("Select2.wav");
                             Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion, shop, shop, inventory, boss);
                             break;
                         }
                     case 5:
                         {
+                            SoundManager.PlaySFX("Select2.wav");
                             Rest(hero, potionInventory); //회복 하기
                             break;
                         }
                     case 6:
                         {
+                            SoundManager.PlaySFX("Select2.wav");
                             ShowQuest(questMgr, hero, inventory);
                             break;
                         }
@@ -624,6 +657,7 @@ namespace TextRPGTeam
             string equipType;
 
             Console.Clear();
+            SoundManager.PlaySFX("Select2.wav");
 
             while (true)
             {
@@ -640,6 +674,7 @@ namespace TextRPGTeam
 
                 if (choice == 0)
                 {
+                    SoundManager.PlaySFX("Select2.wav");
                     Console.Clear();
                     break;
                 }
@@ -801,6 +836,7 @@ namespace TextRPGTeam
             int choice;
             int maxNumber;
             Console.Clear();
+            SoundManager.PlaySFX("Select2.wav");
 
             while (true)
             {
@@ -823,6 +859,7 @@ namespace TextRPGTeam
 
                 if (choice == 0)
                 {
+                    SoundManager.PlaySFX("Select2.wav");
                     Console.Clear();
                     break;
                 }
@@ -873,6 +910,7 @@ namespace TextRPGTeam
             int choice;
             int maxNumber;
             Console.Clear();
+            SoundManager.PlaySFX("Select2.wav");
 
             while (true)
             {
@@ -898,6 +936,7 @@ namespace TextRPGTeam
 
                 if (choice == 0)
                 {
+                    SoundManager.PlaySFX("Select2.wav");
                     Console.Clear();
                     break;
                 }
@@ -1052,7 +1091,7 @@ namespace TextRPGTeam
 
                     switch (choice)
                     {
-                        case 1: BattleAttack(enemy, hero, enemyHealth, questMgr); break;
+                        case 1:BattleAttack(enemy, hero, enemyHealth, questMgr); break;
                         case 2: BattleSkill(enemy, hero, enemyHealth, questMgr); break;
                         default: Console.Clear(); Console.WriteLine("\n잘못된 입력입니다. 다시 선택해 주세요.\n"); break;
                     }
@@ -1497,6 +1536,7 @@ namespace TextRPGTeam
             Exp(hero, totalExp, questMgr);
             Console.Write("아무버튼이나 누르세요..");
             Console.ReadLine();
+            SoundManager.PlayBGM("Cheerful Title Screen.wav");
         }
         public static void BattleDefeat(List<Monster> enemy, Character hero) //배틀 패배시 메소드
         {
@@ -1513,6 +1553,7 @@ namespace TextRPGTeam
             Console.WriteLine($"HP {hero.Health}/100\n\n");
             Console.Write("아무버튼이나 누르세요..");
             Console.ReadLine();
+            SoundManager.PlayBGM("Cheerful Title Screen.wav");
         }
         public static string PadRightForConsole(string input, int totalWidth)//글자 여백 메소드, 한글은 출력 너비가 영어와 달라 사용
         {
@@ -1654,9 +1695,14 @@ namespace TextRPGTeam
                 }
 
                 if (choice == "1")
+                {
                     ShowInProgress(qm, c, inventory);
+                }
                 else if (choice == "2")
+                {
+                    SoundManager.PlaySFX("Select2.wav");
                     ShowAvailable(qm, c, inventory);
+                }
                 else
                 {
                     Console.WriteLine("정확히 입력해주세요.\n계속하려면 아무 키나 누르세요.");
@@ -1688,6 +1734,8 @@ namespace TextRPGTeam
                 Console.Clear();
                 PrintColor("< 진행 중 퀘스트 >\n", ConsoleColor.Cyan);
                 Console.WriteLine("이곳에서 수락한 퀘스트의 진행도와 상세정보를 확인할 수 있습니다.\n");
+                SoundManager.PlaySFX("Select2.wav");
+
                 for (int i = 0; i < accepted.Count; i++)
                 {
                     var q = accepted[i];
@@ -1704,7 +1752,11 @@ namespace TextRPGTeam
                 Console.Write("\n상세 정보를 확인할 퀘스트의 번호를 입력하세요. (0: 돌아가기)\n>> ");
 
                 var input = Console.ReadLine();
-                if (input == "0") return;
+                if (input == "0")
+                {
+                    SoundManager.PlaySFX("Select2.wav");
+                    return;
+                }
 
                 if (!int.TryParse(input, out int sel) || sel < 1 || sel > accepted.Count)
                 {
@@ -1746,10 +1798,12 @@ namespace TextRPGTeam
                     Console.WriteLine("\n1. 보상받기");
                     Console.WriteLine("\n0. 뒤로");
                     Console.Write("\n>> ");
+                    SoundManager.PlaySFX("Select2.wav");
                     var cmd = Console.ReadLine();
 
                     if (cmd == "1")
                     {
+                        SoundManager.PlaySFX("Select2.wav");
                         if (quest.ClaimReward(inventory))
                             Console.WriteLine($"\n보상 '{quest.Reward.Name}' 을(를) 획득했습니다!");
                         else
@@ -1760,6 +1814,7 @@ namespace TextRPGTeam
                     }
                     else if (cmd == "0")
                     {
+                        SoundManager.PlaySFX("Select2.wav");
                         return;
                     }
                 }
@@ -1775,9 +1830,11 @@ namespace TextRPGTeam
                     Console.WriteLine("\n\n1. 퀘스트 포기");
                     Console.WriteLine("\n0. 뒤로");
                     Console.Write("\n>> ");
+                    SoundManager.PlaySFX("Select2.wav");
                     var cmd = Console.ReadLine();
                     if (cmd == "1")
                     {
+                        SoundManager.PlaySFX("Select2.wav");
                         qm.AbandonQuest(quest.Id);
                         Console.WriteLine("퀘스트를 포기했습니다. 수락 가능한 퀘스트로 이동합니다.");
                         Console.ReadKey();
@@ -1819,6 +1876,7 @@ namespace TextRPGTeam
                 Console.Write("\n상세 정보를 확인할 퀘스트의 번호를 입력하세요. (0: 돌아가기)\n>> ");
 
                 var input = Console.ReadLine();
+                SoundManager.PlaySFX("Select2.wav");
                 if (input == "0") return;
 
                 if (!int.TryParse(input, out int sel) || sel < 1 || sel > available.Count)
@@ -1848,6 +1906,8 @@ namespace TextRPGTeam
                 Console.WriteLine("\n0. 돌아가기");
                 Console.Write("\n>> ");
                 var cmd = Console.ReadLine();
+                SoundManager.PlaySFX("Select2.wav");
+
                 if (cmd == "1")
                 {
                     var equipped = inv.Where(i => i.Equip).ToList();
@@ -1880,18 +1940,32 @@ namespace TextRPGTeam
             Console.WriteLine("\n3. 회복 아이템");
             Console.WriteLine("\n\n0. 돌아가기");
             Console.Write("\n\n원하시는 행동을 입력해주세요.\n>> ");
+
             if (int.TryParse(Console.ReadLine(), out int select))
             {
                 switch (select)
                 {
                     case 0: Console.Clear(); break;
 
-                    case 1: Status(hero); break;
-
-                    case 2: Battle(mob, hero, questMgr, dungeon, potionInventory, potion, shop,items,Inventory,boss); break;
-
-                    case 3: PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion, shop, items, Inventory, boss); break;
-
+                    case 1:
+                        {
+                            SoundManager.PlaySFX("Select2.wav");
+                            Status(hero);
+                            break;
+                        }
+                    case 2:
+                        {
+                            SoundManager.PlayBGM("Sketchbook.wav");
+                            SoundManager.PlaySFX("Select2.wav");
+                            Battle(mob, hero, questMgr, dungeon, potionInventory, potion, shop, items, Inventory, boss);
+                            break;
+                        }
+                    case 3:
+                        {
+                            SoundManager.PlaySFX("Select2.wav");
+                            PotionHeal(mob, hero, dungeon, questMgr, potionInventory, potion, shop, items, Inventory, boss);
+                            break;
+                        }
                     default:
                         Console.WriteLine("정확히 입력해주세요.\n계속하려면 아무 키나 누르세요.");
                         Console.ReadKey();
@@ -1953,6 +2027,7 @@ namespace TextRPGTeam
 
                 if (Select == 0)
                 {
+                    SoundManager.PlaySFX("Select2.wav");
                     Dungeon(mob, hero, dungeon, questMgr, potionInventory, potion,shop,items, Inventory, boss);
                     return;
                 }
