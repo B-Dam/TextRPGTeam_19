@@ -358,32 +358,41 @@ namespace TextRPGTeam
              title: "무기 장착",
              description: "아무 무기나 장착하세요.",
              requiredType: "weapon",
-             reward: new Item("보상 아이템 이름", "보상 아이템 설명.", 0, 0, 100, "아이템 타입")
+             reward: new Item("금화 주머니", "장착할 수 있지만 능력치는 없습니다.. 상점에서 적당한 가격에 팔 수 있습니다.", 0, 0, 1176, "gold")
             ));
 
             questMgr.AddQuest(new KillQuest(
                 id: 2,
-                title: "미니언 2마리 처치",
-                description: "던전에서 미니언을 2마리 처치하세요.",
+                title: "미니언 3마리 처치",
+                description: "던전에서 미니언을 3마리 처치하세요.",
                 monsterName: "미니언",
-                requiredCount: 2,
-                reward: new Item("아이템 이름", "아이템 설명.", 0, 0, 0, "아이템 타입")
+                requiredCount: 3,
+                reward: new Item("금화 주머니", "장착할 수 있지만 능력치는 없습니다.. 상점에서 적당한 가격에 팔 수 있습니다.", 0, 0, 1176, "gold")
             ));
 
             questMgr.AddQuest(new LevelQuest(
                 id: 3,
-                title: "레벨 업! 2 레벨!",
-                description: "2레벨을 달성해보세요!",
-                targetLevel: 2,
-                reward: new Item("짱 좋은 아이템", "짱 좋은 아이템이에요!", 0, 0, 10000, "아이템 타입")
+                title: "레벨 업! 3 레벨!",
+                description: "3레벨을 달성해보세요!",
+                targetLevel: 3,
+                reward: new Item("금괴", "장착할 수 있지만 능력치는 없습니다.. 상점에서 비싼 가격에 팔 수 있습니다.", 0, 0, 3529, "gold")
             ));
 
             questMgr.AddQuest(new DungeonQuest(
                 id: 4,
-                title: "던전 2층 클리어!",
-                description: "던전 2층을 클리어 해보세요!",
-                requiredLevel: 2,
-                reward: new Item("짱 좋은 아이템", "짱 좋은 아이템이에요!", 0, 0, 10000, "아이템 타입")
+                title: "던전 5층 클리어!",
+                description: "던전 5층을 클리어 해보세요!",
+                requiredLevel: 5,
+                reward: new Item("에메랄드", "장착할 수 있지만 능력치는 없습니다..상점에서 상당한 가격에 팔 수 있습니다.", 0, 0, 7059, "gold")
+            ));
+
+            questMgr.AddQuest(new KillQuest(
+                id: 5,
+                title: "보스 몬스터, 드래곤 처치!",
+                description: "던전의 보스몬스터, 드래곤을 처치해보세요!",
+                monsterName: "드래곤",
+                requiredCount: 1,
+                reward: new Item("다이아몬드", "장착할 수 있지만 능력치는 없습니다.. 상점에서 어마어마한 가격에 팔 수 있습니다.", 0, 0, 11765, "gold")
             ));
 
             int choice;
@@ -1485,17 +1494,20 @@ namespace TextRPGTeam
                 if (enemyHealth[i] <= 0) continue;
                 Console.Clear();
                 damage = enm.Att - (int)(hero.Def + hero.EqDef + hero.LevelBonusDef) + random.Next(-1, 2);
-                hero.Health -= damage;
+
+                int actualDamage = Math.Max(damage, 0);
+
+                hero.Health -= actualDamage;
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.Write("\nBattle!!\n\n\n");
                 Console.ResetColor();
                 Console.Write($"Lv.{enm.Level} {enm.Name} 의 공격!\n\n");
-                Console.Write($"{hero.Name} 을(를) 맞췄습니다. [데미지 : {damage}]\n\n\n");
+                Console.Write($"{hero.Name} 을(를) 맞췄습니다. [데미지 : {actualDamage}]\n\n\n");
                 Console.Write($"Lv.{hero.Level} {hero.Name}\n\n");
                 if (hero.Health > 0)
-                    Console.Write($"HP {hero.Health + damage} -> {hero.Health}\n\n\n");
+                    Console.Write($"HP {hero.Health + actualDamage} -> {hero.Health}\n\n\n");
                 else
-                    Console.Write($"HP {hero.Health + damage} -> Dead\n\n\n");
+                    Console.Write($"HP {hero.Health + actualDamage} -> Dead\n\n\n");
                 Console.Write("아무버튼이나 누르세요..");
                 Console.ReadLine();
                 if (hero.Health <= 0)
@@ -1789,11 +1801,12 @@ namespace TextRPGTeam
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.Write(" 됩니다! 주의하세요!\n\n");
                 Console.ResetColor();
-                Console.WriteLine($"제목: {quest.Title}\n");
-                Console.WriteLine($"설명: {quest.Description}\n");
-                Console.WriteLine($"상태: [{statusKor}]");
+                Console.WriteLine($"제목 : {quest.Title}\n");
+                Console.WriteLine($"설명 : {quest.Description}\n");
+                Console.WriteLine($"상태 : [{statusKor}]\n");
+                Console.WriteLine($"보상 : {quest.Reward.Name} | {quest.Reward.Description}");
                 if (quest is KillQuest kq)
-                    Console.WriteLine($"\n진행도: {kq.Progress}/{kq.RequiredCount}");
+                    Console.WriteLine($"\n진행도 : {kq.Progress}/{kq.RequiredCount}");
 
                 if (quest.Status == QuestStatus.Completed)
                 {
@@ -1901,6 +1914,7 @@ namespace TextRPGTeam
                 PrintColor("< 퀘스트 상세 >\n", ConsoleColor.Cyan);
                 Console.WriteLine($"제목 : {quest.Title}\n");
                 Console.WriteLine($"설명 : {quest.Description}\n");
+                Console.WriteLine($"보상 : {quest.Reward.Name} | {quest.Reward.Description}");
                 if (quest is KillQuest kq)
                     Console.WriteLine($"\n진행도 : {kq.Progress}/{kq.RequiredCount}");
 
