@@ -208,7 +208,7 @@ namespace TextRPGTeam
             private static AudioFileReader bgmReader;
             private static WaveOutEvent bgmPlayer;
 
-            private static string basePath = @"Assets\";
+            private static string basePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "..", "..", "..", "..", "Music/"));
 
             // 배경음악 재생
             public static void PlayBGM(string fileName, float volume = 0.5f)
