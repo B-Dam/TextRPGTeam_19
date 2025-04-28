@@ -1,6 +1,5 @@
-<div align="center">
 
-<h1> 📄 #Text RPG Team </h1>
+<h1> 📄 Text RPG Team </h1>
 
 </div>
 
